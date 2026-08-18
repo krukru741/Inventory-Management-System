@@ -31,11 +31,10 @@ export default function ProductsPage() {
   const { data: stockSummaries, isLoading } = useQuery<StockSummary[]>({
     queryKey: ['stock-summaries'],
     queryFn: async () => {
-      // Trying to fetch the stock-summary report first.
-      // If backend doesn't have it directly at this path, you might need to adjust.
+      // Fetching the stock-summary report from the backend
       try {
         const res = await api.get('/reports/stock-summary');
-        return res.data;
+        return res.data.data;
       } catch (err) {
         // Fallback mock data if endpoint isn't fully ready
         return [

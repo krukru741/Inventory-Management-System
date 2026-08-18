@@ -23,9 +23,10 @@ export default function LoginPage() {
     setError('');
 
     try {
-      const { data } = await api.post('/auth/login', { email, password });
-      // Expecting backend to return { accessToken, user }
-      login(data.accessToken, data.user || { email, role: 'admin', id: '1', name: 'System Admin' });
+      const response = await api.post('/auth/login', { email, password });
+      // TransformInterceptor wraps response in "data" object, and Axios wraps it in "data" again
+      const payload = response.data.data;
+      login(payload.accessToken, payload.user);
       navigate('/dashboard');
     } catch (err: unknown) {
       const error = err as any;
