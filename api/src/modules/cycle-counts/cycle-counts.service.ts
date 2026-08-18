@@ -10,6 +10,7 @@ export class CycleCountsService {
   async create(createDto: CreateCycleCountDto, userId: string) {
     return this.prisma.cycleCount.create({
       data: {
+        countNumber: `CC-${Date.now()}`,
         warehouseId: createDto.warehouseId,
         notes: createDto.notes,
         createdById: userId,
@@ -19,8 +20,8 @@ export class CycleCountsService {
   }
 
   async countItem(countId: string, locationId: string, productId: string, countDto: CountItemDto, userId: string) {
-    const inventory = await this.prisma.inventory.findUnique({
-      where: { productId_locationId: { productId, locationId } }
+    const inventory = await this.prisma.inventory.findFirst({
+      where: { productId, locationId }
     });
     const systemQty = inventory ? inventory.quantity : 0;
 
@@ -68,11 +69,22 @@ export class CycleCountsService {
         const diff = Number(item.countedQty) - Number(item.systemQty);
         
         if (diff !== 0) {
-          const inventory = await tx.inventory.upsert({
-            where: { productId_locationId: { productId: item.productId, locationId: item.locationId } },
-            update: { quantity: item.countedQty },
-            create: { productId: item.productId, locationId: item.locationId, quantity: item.countedQty, unitCost: 0 }
+          const inventory = await tx.inventory.findFirst({
+            where: { productId: item.productId, locationId: item.locationId }
           });
+          
+          let unitCost = 0;
+          if (inventory) {
+            unitCost = Number(inventory.unitCost);
+            await tx.inventory.update({
+              where: { id: inventory.id },
+              data: { quantity: item.countedQty }
+            });
+          } else {
+            await tx.inventory.create({
+              data: { productId: item.productId, locationId: item.locationId, quantity: Number(item.countedQty), unitCost: 0 }
+            });
+          }
 
           const movementType = diff > 0 ? MovementType.adjustment_in : MovementType.adjustment_out;
           
@@ -83,7 +95,7 @@ export class CycleCountsService {
               movementType,
               quantity: diff,
               balanceAfter: item.countedQty,
-              unitCost: inventory.unitCost,
+              unitCost: unitCost,
               idempotencyKey: `cc-${countId}-${item.id}`,
               performedById: userId,
               reason: 'Cycle Count Adjustment',

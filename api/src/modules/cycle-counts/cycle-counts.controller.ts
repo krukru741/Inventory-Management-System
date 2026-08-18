@@ -17,7 +17,7 @@ export class CycleCountsController {
   @Post()
   @Roles(UserRole.admin, UserRole.manager, UserRole.staff)
   @ApiOperation({ summary: 'Create a new cycle count draft' })
-  create(@Body() createDto: CreateCycleCountDto, @Request() req) {
+  create(@Body() createDto: CreateCycleCountDto, @Request() req: any) {
     return this.cycleCountsService.create(createDto, req.user.sub);
   }
 
@@ -29,7 +29,7 @@ export class CycleCountsController {
     @Param('locationId') locationId: string,
     @Param('productId') productId: string,
     @Body() countDto: CountItemDto,
-    @Request() req
+    @Request() req: any
   ) {
     return this.cycleCountsService.countItem(id, locationId, productId, countDto, req.user.sub);
   }
@@ -37,7 +37,7 @@ export class CycleCountsController {
   @Post(':id/post-adjustments')
   @Roles(UserRole.admin, UserRole.manager)
   @ApiOperation({ summary: 'Post stock adjustments based on count discrepancies' })
-  postAdjustments(@Param('id') id: string, @Request() req) {
+  postAdjustments(@Param('id') id: string, @Request() req: any) {
     return this.cycleCountsService.postAdjustments(id, req.user.sub);
   }
 }

@@ -19,7 +19,7 @@ export class TransfersService {
         items: {
           create: createDto.items.map(item => ({
             productId: item.productId,
-            quantity: item.quantity,
+            requestedQty: item.quantity,
             batchNumber: item.batchNumber,
             serialNumber: item.serialNumber,
           })),
@@ -43,17 +43,18 @@ export class TransfersService {
 
       // 1. Deduct from fromLocation
       for (const item of transfer.items) {
-        const inventory = await tx.inventory.findUnique({
+        const inventory = await tx.inventory.findFirst({
           where: {
-            productId_locationId: { productId: item.productId, locationId: transfer.fromLocationId },
+            productId: item.productId, 
+            locationId: transfer.fromLocationId
           },
         });
 
-        if (!inventory || inventory.quantity < item.quantity) {
+        if (!inventory || Number(inventory.quantity) < Number(item.requestedQty)) {
           throw new BadRequestException(`Insufficient stock for product ${item.productId} at source location`);
         }
 
-        const balanceAfter = inventory.quantity - item.quantity;
+        const balanceAfter = Number(inventory.quantity) - Number(item.requestedQty);
         await tx.inventory.update({
           where: { id: inventory.id },
           data: { quantity: balanceAfter },
@@ -64,7 +65,7 @@ export class TransfersService {
             productId: item.productId,
             locationId: transfer.fromLocationId,
             movementType: MovementType.transfer_out,
-            quantity: -item.quantity,
+            quantity: -Number(item.requestedQty),
             balanceAfter,
             unitCost: inventory.unitCost,
             batchNumber: item.batchNumber,
@@ -98,31 +99,42 @@ export class TransfersService {
 
       // 1. Add to toLocation
       for (const item of transfer.items) {
-        const inventory = await tx.inventory.upsert({
+        const inventory = await tx.inventory.findFirst({
           where: {
-            productId_locationId: { productId: item.productId, locationId: transfer.toLocationId },
-          },
-          update: {
-            quantity: { increment: item.quantity },
-          },
-          create: {
-            productId: item.productId,
-            locationId: transfer.toLocationId,
-            quantity: item.quantity,
-            unitCost: 0, // In a real app, unitCost would transfer or recompute
+            productId: item.productId, 
+            locationId: transfer.toLocationId
           },
         });
 
-        const balanceAfter = inventory.quantity + (inventory.id ? 0 : item.quantity); // If created, inventory.quantity is already the item.quantity
+        let balanceAfter = Number(item.requestedQty);
+        let unitCost = 0;
+
+        if (inventory) {
+          balanceAfter += Number(inventory.quantity);
+          unitCost = Number(inventory.unitCost);
+          await tx.inventory.update({
+            where: { id: inventory.id },
+            data: { quantity: balanceAfter },
+          });
+        } else {
+          await tx.inventory.create({
+            data: {
+              productId: item.productId,
+              locationId: transfer.toLocationId,
+              quantity: balanceAfter,
+              unitCost: 0,
+            },
+          });
+        }
 
         await tx.stockMovement.create({
           data: {
             productId: item.productId,
             locationId: transfer.toLocationId,
             movementType: MovementType.transfer_in,
-            quantity: item.quantity,
-            balanceAfter: inventory.quantity, // After upsert, this is correct
-            unitCost: inventory.unitCost,
+            quantity: Number(item.requestedQty),
+            balanceAfter,
+            unitCost,
             batchNumber: item.batchNumber,
             serialNumber: item.serialNumber,
             transferId: transfer.id,

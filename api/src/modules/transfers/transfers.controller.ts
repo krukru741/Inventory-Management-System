@@ -17,21 +17,21 @@ export class TransfersController {
   @Post()
   @Roles(UserRole.admin, UserRole.manager)
   @ApiOperation({ summary: 'Create a stock transfer' })
-  create(@Body() createDto: CreateTransferDto, @Request() req) {
+  create(@Body() createDto: CreateTransferDto, @Request() req: any) {
     return this.transfersService.create(createDto, req.user.sub);
   }
 
   @Post(':id/dispatch')
   @Roles(UserRole.admin, UserRole.manager, UserRole.staff)
   @ApiOperation({ summary: 'Dispatch a stock transfer' })
-  dispatch(@Param('id') id: string, @Request() req) {
+  dispatch(@Param('id') id: string, @Request() req: any) {
     return this.transfersService.dispatch(id, req.user.sub);
   }
 
   @Post(':id/receive')
   @Roles(UserRole.admin, UserRole.manager, UserRole.staff)
   @ApiOperation({ summary: 'Receive a stock transfer' })
-  receive(@Param('id') id: string, @Request() req) {
+  receive(@Param('id') id: string, @Request() req: any) {
     return this.transfersService.receive(id, req.user.sub);
   }
 }

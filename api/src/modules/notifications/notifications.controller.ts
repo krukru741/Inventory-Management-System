@@ -12,13 +12,13 @@ export class NotificationsController {
 
   @Get()
   @ApiOperation({ summary: 'Get current users notifications' })
-  getMyNotifications(@Request() req) {
+  getMyNotifications(@Request() req: any) {
     return this.notificationsService.getMyNotifications(req.user.sub);
   }
 
   @Patch(':id/read')
   @ApiOperation({ summary: 'Mark a notification as read' })
-  markAsRead(@Param('id') id: string, @Request() req) {
+  markAsRead(@Param('id') id: string, @Request() req: any) {
     return this.notificationsService.markAsRead(id, req.user.sub);
   }
 }

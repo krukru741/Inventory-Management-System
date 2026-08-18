@@ -30,7 +30,7 @@ let TransfersService = class TransfersService {
                 items: {
                     create: createDto.items.map(item => ({
                         productId: item.productId,
-                        quantity: item.quantity,
+                        requestedQty: item.quantity,
                         batchNumber: item.batchNumber,
                         serialNumber: item.serialNumber,
                     })),
@@ -51,15 +51,16 @@ let TransfersService = class TransfersService {
                 throw new common_1.BadRequestException('Can only dispatch draft transfers');
             }
             for (const item of transfer.items) {
-                const inventory = await tx.inventory.findUnique({
+                const inventory = await tx.inventory.findFirst({
                     where: {
-                        productId_locationId: { productId: item.productId, locationId: transfer.fromLocationId },
+                        productId: item.productId,
+                        locationId: transfer.fromLocationId
                     },
                 });
-                if (!inventory || inventory.quantity < item.quantity) {
+                if (!inventory || Number(inventory.quantity) < Number(item.requestedQty)) {
                     throw new common_1.BadRequestException(`Insufficient stock for product ${item.productId} at source location`);
                 }
-                const balanceAfter = inventory.quantity - item.quantity;
+                const balanceAfter = Number(inventory.quantity) - Number(item.requestedQty);
                 await tx.inventory.update({
                     where: { id: inventory.id },
                     data: { quantity: balanceAfter },
@@ -69,7 +70,7 @@ let TransfersService = class TransfersService {
                         productId: item.productId,
                         locationId: transfer.fromLocationId,
                         movementType: client_1.MovementType.transfer_out,
-                        quantity: -item.quantity,
+                        quantity: -Number(item.requestedQty),
                         balanceAfter,
                         unitCost: inventory.unitCost,
                         batchNumber: item.batchNumber,
@@ -98,29 +99,40 @@ let TransfersService = class TransfersService {
                 throw new common_1.BadRequestException('Can only receive in_transit transfers');
             }
             for (const item of transfer.items) {
-                const inventory = await tx.inventory.upsert({
+                const inventory = await tx.inventory.findFirst({
                     where: {
-                        productId_locationId: { productId: item.productId, locationId: transfer.toLocationId },
-                    },
-                    update: {
-                        quantity: { increment: item.quantity },
-                    },
-                    create: {
                         productId: item.productId,
-                        locationId: transfer.toLocationId,
-                        quantity: item.quantity,
-                        unitCost: 0,
+                        locationId: transfer.toLocationId
                     },
                 });
-                const balanceAfter = inventory.quantity + (inventory.id ? 0 : item.quantity);
+                let balanceAfter = Number(item.requestedQty);
+                let unitCost = 0;
+                if (inventory) {
+                    balanceAfter += Number(inventory.quantity);
+                    unitCost = Number(inventory.unitCost);
+                    await tx.inventory.update({
+                        where: { id: inventory.id },
+                        data: { quantity: balanceAfter },
+                    });
+                }
+                else {
+                    await tx.inventory.create({
+                        data: {
+                            productId: item.productId,
+                            locationId: transfer.toLocationId,
+                            quantity: balanceAfter,
+                            unitCost: 0,
+                        },
+                    });
+                }
                 await tx.stockMovement.create({
                     data: {
                         productId: item.productId,
                         locationId: transfer.toLocationId,
                         movementType: client_1.MovementType.transfer_in,
-                        quantity: item.quantity,
-                        balanceAfter: inventory.quantity,
-                        unitCost: inventory.unitCost,
+                        quantity: Number(item.requestedQty),
+                        balanceAfter,
+                        unitCost,
                         batchNumber: item.batchNumber,
                         serialNumber: item.serialNumber,
                         transferId: transfer.id,

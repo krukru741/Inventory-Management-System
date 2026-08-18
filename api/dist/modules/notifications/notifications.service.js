@@ -33,16 +33,16 @@ let NotificationsService = NotificationsService_1 = class NotificationsService {
         for (const alert of alerts) {
             const recentNotification = await this.prisma.notification.findFirst({
                 where: {
-                    title: { contains: alert.sku },
+                    subject: { contains: alert.sku },
                     createdAt: { gte: twentyFourHoursAgo },
                 }
             });
             if (!recentNotification) {
                 this.logger.debug(`Generating low stock alert for ${alert.sku}`);
                 const newNotifications = managers.map(m => ({
-                    userId: m.id,
-                    title: `Low Stock Alert: ${alert.sku}`,
-                    content: `${alert.product_name} is running low at ${alert.warehouse_name} (${alert.location_code}). On hand: ${alert.on_hand_qty}. Reorder point: ${alert.reorder_point}.`,
+                    recipientId: m.id,
+                    subject: `Low Stock Alert: ${alert.sku}`,
+                    body: `${alert.product_name} is running low at ${alert.warehouse_name} (${alert.location_code}). On hand: ${alert.on_hand_qty}. Reorder point: ${alert.reorder_point}.`,
                     channel: client_1.NotificationChannel.in_app,
                     status: client_1.NotificationStatus.pending,
                 }));
@@ -52,14 +52,14 @@ let NotificationsService = NotificationsService_1 = class NotificationsService {
     }
     async getMyNotifications(userId) {
         return this.prisma.notification.findMany({
-            where: { userId },
+            where: { recipientId: userId },
             orderBy: { createdAt: 'desc' },
             take: 50,
         });
     }
     async markAsRead(id, userId) {
         return this.prisma.notification.updateMany({
-            where: { id, userId },
+            where: { id, recipientId: userId },
             data: { status: client_1.NotificationStatus.read, readAt: new Date() }
         });
     }

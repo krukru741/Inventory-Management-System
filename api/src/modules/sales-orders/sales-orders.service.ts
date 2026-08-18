@@ -25,14 +25,25 @@ export class SalesOrdersService {
       }
 
       // Restock inventory
-      const inventory = await tx.inventory.upsert({
-        where: { productId_locationId: { productId: dto.productId, locationId: dto.returnToLocationId } },
-        update: { quantity: { increment: dto.returnQty } },
-        create: { productId: dto.productId, locationId: dto.returnToLocationId, quantity: dto.returnQty, unitCost: 0 }
+      const inventory = await tx.inventory.findFirst({
+        where: { productId: dto.productId, locationId: dto.returnToLocationId },
       });
 
-      // Post Movement
-      const balanceAfter = inventory.quantity + (inventory.id ? 0 : dto.returnQty);
+      let balanceAfter = dto.returnQty;
+      let unitCost = 0;
+
+      if (inventory) {
+        balanceAfter += Number(inventory.quantity);
+        unitCost = Number(inventory.unitCost);
+        await tx.inventory.update({
+          where: { id: inventory.id },
+          data: { quantity: balanceAfter },
+        });
+      } else {
+        await tx.inventory.create({
+          data: { productId: dto.productId, locationId: dto.returnToLocationId, quantity: balanceAfter, unitCost: 0 }
+        });
+      }
 
       await tx.stockMovement.create({
         data: {
@@ -41,7 +52,7 @@ export class SalesOrdersService {
           movementType: MovementType.return_in,
           quantity: dto.returnQty,
           balanceAfter,
-          unitCost: inventory.unitCost,
+          unitCost,
           soId: so.id,
           idempotencyKey: `return-${so.id}-${dto.productId}-${Date.now()}`,
           performedById: userId,

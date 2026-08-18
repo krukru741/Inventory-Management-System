@@ -4,6 +4,20 @@ export declare class TransfersController {
     private readonly transfersService;
     constructor(transfersService: TransfersService);
     create(createDto: CreateTransferDto, req: any): Promise<{
+        items: {
+            serialNumber: string | null;
+            id: string;
+            createdAt: Date;
+            updatedAt: Date;
+            productId: string;
+            variantId: string | null;
+            batchNumber: string | null;
+            transferId: string;
+            receivedQty: import("@prisma/client-runtime-utils").Decimal;
+            requestedQty: import("@prisma/client-runtime-utils").Decimal;
+            sentQty: import("@prisma/client-runtime-utils").Decimal;
+        }[];
+    } & {
         id: string;
         createdAt: Date;
         updatedAt: Date;
