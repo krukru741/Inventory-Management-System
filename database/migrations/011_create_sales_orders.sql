@@ -42,7 +42,7 @@ CREATE TABLE sales_orders (
 );
 
 COMMENT ON TABLE  sales_orders                  IS 'Sales order headers.';
-COMMENT ON COLUMN sales_orders.customer_po_ref  IS 'Reference to customer's own purchase order number.';
+COMMENT ON COLUMN sales_orders.customer_po_ref  IS 'Reference to customer''s own purchase order number.';
 
 CREATE INDEX idx_so_customer_id     ON sales_orders (customer_id);
 CREATE INDEX idx_so_warehouse_id    ON sales_orders (warehouse_id);
