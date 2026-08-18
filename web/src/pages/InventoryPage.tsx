@@ -1,4 +1,4 @@
-import { useMemo, useState } from 'react';
+import { useMemo, useState, useEffect } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { Search, PackagePlus, AlertTriangle, PackageX, Boxes, DollarSign } from 'lucide-react';
 import { v4 as uuidv4 } from 'uuid';
@@ -206,6 +206,16 @@ function AdjustStockDialog({
         setReason('');
         setError(null);
     };
+
+    useEffect(() => {
+        if (open) {
+            setProductId(defaultProductId ?? '');
+            setLocationId(defaultLocationId ?? '');
+            setQuantityChange('');
+            setReason('');
+            setError(null);
+        }
+    }, [open, defaultProductId, defaultLocationId]);
 
     const handleSubmit = async () => {
         setError(null);
