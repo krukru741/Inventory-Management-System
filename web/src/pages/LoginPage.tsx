@@ -27,8 +27,9 @@ export default function LoginPage() {
       // Expecting backend to return { accessToken, user }
       login(data.accessToken, data.user || { email, role: 'admin', id: '1', name: 'System Admin' });
       navigate('/dashboard');
-    } catch (err: any) {
-      setError(err.response?.data?.message || 'Failed to login');
+    } catch (err: unknown) {
+      const error = err as any;
+      setError(error.response?.data?.message || 'Failed to login');
     } finally {
       setLoading(false);
     }
@@ -59,7 +60,7 @@ export default function LoginPage() {
                 id="email"
                 type="email"
                 value={email}
-                onChange={(e) => setEmail(e.target.value)}
+                onChange={(e: React.ChangeEvent<HTMLInputElement>) => setEmail(e.target.value)}
                 placeholder="m@example.com"
                 required
               />
@@ -71,7 +72,7 @@ export default function LoginPage() {
                   id="password"
                   type={showPassword ? "text" : "password"}
                   value={password}
-                  onChange={(e) => setPassword(e.target.value)}
+                  onChange={(e: React.ChangeEvent<HTMLInputElement>) => setPassword(e.target.value)}
                   className="pr-10"
                   required
                 />
