@@ -63,6 +63,9 @@ const customers_module_1 = require("./modules/customers/customers.module");
 const purchase_orders_module_1 = require("./modules/purchase-orders/purchase-orders.module");
 const sales_orders_module_1 = require("./modules/sales-orders/sales-orders.module");
 const reports_module_1 = require("./modules/reports/reports.module");
+const transfers_module_1 = require("./modules/transfers/transfers.module");
+const cycle_counts_module_1 = require("./modules/cycle-counts/cycle-counts.module");
+const notifications_module_1 = require("./modules/notifications/notifications.module");
 let AppModule = class AppModule {
 };
 exports.AppModule = AppModule;
@@ -104,6 +107,9 @@ exports.AppModule = AppModule = __decorate([
             purchase_orders_module_1.PurchaseOrdersModule,
             sales_orders_module_1.SalesOrdersModule,
             reports_module_1.ReportsModule,
+            transfers_module_1.TransfersModule,
+            cycle_counts_module_1.CycleCountsModule,
+            notifications_module_1.NotificationsModule,
         ],
     })
 ], AppModule);

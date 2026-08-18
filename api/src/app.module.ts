@@ -20,6 +20,9 @@ import { CustomersModule } from './modules/customers/customers.module';
 import { PurchaseOrdersModule } from './modules/purchase-orders/purchase-orders.module';
 import { SalesOrdersModule } from './modules/sales-orders/sales-orders.module';
 import { ReportsModule } from './modules/reports/reports.module';
+import { TransfersModule } from './modules/transfers/transfers.module';
+import { CycleCountsModule } from './modules/cycle-counts/cycle-counts.module';
+import { NotificationsModule } from './modules/notifications/notifications.module';
 
 @Module({
   imports: [
@@ -67,6 +70,9 @@ import { ReportsModule } from './modules/reports/reports.module';
     PurchaseOrdersModule,
     SalesOrdersModule,
     ReportsModule,
+    TransfersModule,
+    CycleCountsModule,
+    NotificationsModule,
     // ...
   ],
 })
