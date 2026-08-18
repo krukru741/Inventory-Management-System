@@ -58,15 +58,21 @@ let AuthService = class AuthService {
         this.configService = configService;
     }
     async validateUser(email, pass) {
-        const user = await this.prisma.user.findUnique({ where: { email } });
-        if (user && user.isActive) {
-            const isMatch = await bcrypt.compare(pass, user.passwordHash);
-            if (isMatch) {
-                const { passwordHash, ...result } = user;
-                return result;
+        try {
+            const user = await this.prisma.user.findUnique({ where: { email } });
+            if (user && user.isActive) {
+                const isMatch = await bcrypt.compare(pass, user.passwordHash);
+                if (isMatch) {
+                    const { passwordHash, ...result } = user;
+                    return result;
+                }
             }
+            return null;
         }
-        return null;
+        catch (error) {
+            console.error("PRISMA ERROR", error);
+            throw error;
+        }
     }
     async login(user) {
         const payload = { email: user.email, sub: user.id, role: user.role };

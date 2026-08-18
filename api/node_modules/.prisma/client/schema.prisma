@@ -9,7 +9,7 @@
 generator client {
   provider        = "prisma-client-js"
   // Enables filtering/ordering on relations and raw query types
-  previewFeatures = []
+  previewFeatures = ["driverAdapters"]
 }
 
 datasource db {

@@ -15,16 +15,21 @@ export class AuthService {
   ) {}
 
   async validateUser(email: string, pass: string): Promise<any> {
-    const user = await this.prisma.user.findUnique({ where: { email } });
-    if (user && user.isActive) {
-      // pgcrypto crypt() generated hashes start with $2a$ or $2b$, bcrypt can verify them
-      const isMatch = await bcrypt.compare(pass, user.passwordHash);
-      if (isMatch) {
-        const { passwordHash, ...result } = user;
-        return result;
+    try {
+      const user = await this.prisma.user.findUnique({ where: { email } });
+      if (user && user.isActive) {
+        // pgcrypto crypt() generated hashes start with $2a$ or $2b$, bcrypt can verify them
+        const isMatch = await bcrypt.compare(pass, user.passwordHash);
+        if (isMatch) {
+          const { passwordHash, ...result } = user;
+          return result;
+        }
       }
+      return null;
+    } catch (error) {
+      console.error("PRISMA ERROR", error);
+      throw error;
     }
-    return null;
   }
 
   async login(user: any): Promise<AuthResponseDto> {
