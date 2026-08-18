@@ -13,6 +13,7 @@ import {
     DialogTitle,
     DialogFooter,
 } from '@/components/ui/dialog';
+import CreateProductModal from '@/components/CreateProductModal';
 
 interface ItemRow {
     id: string; // temp id for ui
@@ -42,6 +43,9 @@ export default function CreatePurchaseOrderModal({ open, onOpenChange }: CreateP
     const [items, setItems] = useState<ItemRow[]>([
         { id: crypto.randomUUID(), productId: '', productSearch: '', isDropdownOpen: false, orderedQty: 1, unitCost: 0 }
     ]);
+
+    const [isCreateProductOpen, setIsCreateProductOpen] = useState(false);
+    const [targetRowIdForNewProduct, setTargetRowIdForNewProduct] = useState<string | null>(null);
 
     const { data: suppliers } = useQuery({
         queryKey: ['suppliers'],
@@ -115,6 +119,13 @@ export default function CreatePurchaseOrderModal({ open, onOpenChange }: CreateP
         ));
     };
 
+    const handleNewProductSuccess = (newProduct: any) => {
+        if (targetRowIdForNewProduct) {
+            handleProductSelect(targetRowIdForNewProduct, newProduct);
+            setTargetRowIdForNewProduct(null);
+        }
+    };
+
     const handleSubmit = (e: React.FormEvent) => {
         e.preventDefault();
         if (!supplierId || !warehouseId || items.some(i => !i.productId || i.orderedQty <= 0)) {
@@ -139,6 +150,7 @@ export default function CreatePurchaseOrderModal({ open, onOpenChange }: CreateP
     const totalOrderAmount = items.reduce((acc, item) => acc + (item.orderedQty * item.unitCost), 0);
 
     return (
+        <>
         <Dialog 
             open={open} 
             onOpenChange={(isOpen) => {
@@ -209,18 +221,33 @@ export default function CreatePurchaseOrderModal({ open, onOpenChange }: CreateP
                             <div key={item.id} className="flex flex-wrap md:flex-nowrap gap-4 items-start bg-white p-4 rounded-md border border-[#EFE7D6]">
                                 <div className="flex-1 w-full md:w-auto space-y-1.5 relative" onClick={(e) => e.stopPropagation()}>
                                     <Label className="text-[#8B6355]">Product</Label>
-                                    <Input
-                                        placeholder="Search product..."
-                                        value={item.productSearch}
-                                        onChange={(e) => {
-                                            handleItemChange(item.id, 'productSearch', e.target.value);
-                                            handleItemChange(item.id, 'productId', ''); // Reset ID if they type
-                                            handleItemChange(item.id, 'isDropdownOpen', true);
-                                        }}
-                                        onClick={() => handleItemChange(item.id, 'isDropdownOpen', true)}
-                                        className="border-[#D9CBB0]"
-                                        required
-                                    />
+                                    <div className="flex gap-2">
+                                        <Input
+                                            placeholder="Search product..."
+                                            value={item.productSearch}
+                                            onChange={(e) => {
+                                                handleItemChange(item.id, 'productSearch', e.target.value);
+                                                handleItemChange(item.id, 'productId', ''); // Reset ID if they type
+                                                handleItemChange(item.id, 'isDropdownOpen', true);
+                                            }}
+                                            onClick={() => handleItemChange(item.id, 'isDropdownOpen', true)}
+                                            className="border-[#D9CBB0]"
+                                            required
+                                        />
+                                        <Button
+                                            type="button"
+                                            variant="outline"
+                                            size="icon"
+                                            title="Add New Product"
+                                            className="border-[#D9CBB0] text-[#5C4033] hover:bg-[#F5EFE3] shrink-0"
+                                            onClick={() => {
+                                                setTargetRowIdForNewProduct(item.id);
+                                                setIsCreateProductOpen(true);
+                                            }}
+                                        >
+                                            <Plus className="h-4 w-4" />
+                                        </Button>
+                                    </div>
                                     {item.isDropdownOpen && (
                                         <div className="absolute z-10 w-full mt-1 bg-white border border-[#D9CBB0] rounded-md shadow-lg max-h-48 overflow-y-auto">
                                             {filteredProducts.length === 0 ? (
@@ -324,5 +351,12 @@ export default function CreatePurchaseOrderModal({ open, onOpenChange }: CreateP
                 </form>
             </DialogContent>
         </Dialog>
+
+        <CreateProductModal 
+            open={isCreateProductOpen}
+            onOpenChange={setIsCreateProductOpen}
+            onSuccessCb={handleNewProductSuccess}
+        />
+        </>
     );
 }
