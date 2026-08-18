@@ -15,8 +15,9 @@ const swagger_1 = require("@nestjs/swagger");
 const class_transformer_1 = require("class-transformer");
 class CreateCustomerDto {
     name;
+    code;
     email;
-    contactName;
+    contactPerson;
     phone;
     addressLine1;
     addressLine2;
@@ -24,12 +25,11 @@ class CreateCustomerDto {
     state;
     postalCode;
     country;
-    taxId;
     creditLimit;
     currency;
     paymentTerms;
-    isActive;
     notes;
+    isActive;
 }
 exports.CreateCustomerDto = CreateCustomerDto;
 __decorate([
@@ -39,7 +39,13 @@ __decorate([
 ], CreateCustomerDto.prototype, "name", void 0);
 __decorate([
     (0, swagger_1.ApiProperty)(),
+    (0, class_validator_1.IsString)(),
+    __metadata("design:type", String)
+], CreateCustomerDto.prototype, "code", void 0);
+__decorate([
+    (0, swagger_1.ApiPropertyOptional)(),
     (0, class_validator_1.IsEmail)(),
+    (0, class_validator_1.IsOptional)(),
     __metadata("design:type", String)
 ], CreateCustomerDto.prototype, "email", void 0);
 __decorate([
@@ -47,7 +53,7 @@ __decorate([
     (0, class_validator_1.IsString)(),
     (0, class_validator_1.IsOptional)(),
     __metadata("design:type", String)
-], CreateCustomerDto.prototype, "contactName", void 0);
+], CreateCustomerDto.prototype, "contactPerson", void 0);
 __decorate([
     (0, swagger_1.ApiPropertyOptional)(),
     (0, class_validator_1.IsString)(),
@@ -92,12 +98,6 @@ __decorate([
 ], CreateCustomerDto.prototype, "country", void 0);
 __decorate([
     (0, swagger_1.ApiPropertyOptional)(),
-    (0, class_validator_1.IsString)(),
-    (0, class_validator_1.IsOptional)(),
-    __metadata("design:type", String)
-], CreateCustomerDto.prototype, "taxId", void 0);
-__decorate([
-    (0, swagger_1.ApiPropertyOptional)(),
     (0, class_validator_1.IsNumber)(),
     (0, class_transformer_1.Type)(() => Number),
     (0, class_validator_1.IsOptional)(),
@@ -111,20 +111,21 @@ __decorate([
 ], CreateCustomerDto.prototype, "currency", void 0);
 __decorate([
     (0, swagger_1.ApiPropertyOptional)(),
-    (0, class_validator_1.IsString)(),
+    (0, class_validator_1.IsNumber)(),
+    (0, class_transformer_1.Type)(() => Number),
     (0, class_validator_1.IsOptional)(),
-    __metadata("design:type", String)
+    __metadata("design:type", Number)
 ], CreateCustomerDto.prototype, "paymentTerms", void 0);
-__decorate([
-    (0, swagger_1.ApiPropertyOptional)(),
-    (0, class_validator_1.IsBoolean)(),
-    (0, class_validator_1.IsOptional)(),
-    __metadata("design:type", Boolean)
-], CreateCustomerDto.prototype, "isActive", void 0);
 __decorate([
     (0, swagger_1.ApiPropertyOptional)(),
     (0, class_validator_1.IsString)(),
     (0, class_validator_1.IsOptional)(),
     __metadata("design:type", String)
 ], CreateCustomerDto.prototype, "notes", void 0);
+__decorate([
+    (0, swagger_1.ApiPropertyOptional)(),
+    (0, class_validator_1.IsBoolean)(),
+    (0, class_validator_1.IsOptional)(),
+    __metadata("design:type", Boolean)
+], CreateCustomerDto.prototype, "isActive", void 0);
 //# sourceMappingURL=create-customer.dto.js.map

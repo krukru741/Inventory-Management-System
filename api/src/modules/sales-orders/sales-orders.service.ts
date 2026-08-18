@@ -105,7 +105,7 @@ export class SalesOrdersService {
             locationId: item.locationId,
             shippedQty: item.shippedQty,
             batchNumber: item.batchNumber,
-            lotNumber: item.lotNumber,
+            serialNumber: item.serialNumber,
           },
         });
 
@@ -150,7 +150,7 @@ export class SalesOrdersService {
             balanceAfter,
             unitCost: inventory.unitCost, // Outbound at current average cost
             batchNumber: item.batchNumber,
-            lotNumber: item.lotNumber,
+            serialNumber: item.serialNumber, // Fix here
             soId: so.id,
             idempotencyKey: `shipment-${shipment.id}-${item.soiId}`,
             performedById: userId,

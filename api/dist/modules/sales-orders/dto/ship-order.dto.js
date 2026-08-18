@@ -18,7 +18,7 @@ class ShipmentItemDto {
     locationId;
     shippedQty;
     batchNumber;
-    lotNumber;
+    serialNumber;
 }
 exports.ShipmentItemDto = ShipmentItemDto;
 __decorate([
@@ -48,7 +48,7 @@ __decorate([
     (0, class_validator_1.IsString)(),
     (0, class_validator_1.IsOptional)(),
     __metadata("design:type", String)
-], ShipmentItemDto.prototype, "lotNumber", void 0);
+], ShipmentItemDto.prototype, "serialNumber", void 0);
 class ShipOrderDto {
     carrier;
     trackingNumber;

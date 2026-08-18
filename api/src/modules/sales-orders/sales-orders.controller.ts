@@ -18,7 +18,7 @@ export class SalesOrdersController {
   @Post()
   @Roles(UserRole.admin, UserRole.manager, UserRole.staff)
   @ApiOperation({ summary: 'Create a new sales order' })
-  create(@Body() createSalesOrderDto: CreateSalesOrderDto, @Request() req) {
+  create(@Body() createSalesOrderDto: CreateSalesOrderDto, @Request() req: any) {
     return this.salesOrdersService.create(createSalesOrderDto, req.user.id);
   }
 
@@ -46,7 +46,7 @@ export class SalesOrdersController {
   @Post(':id/ship')
   @Roles(UserRole.admin, UserRole.manager, UserRole.staff)
   @ApiOperation({ summary: 'Ship a sales order' })
-  shipOrder(@Param('id') id: string, @Body() shipOrderDto: ShipOrderDto, @Request() req) {
+  shipOrder(@Param('id') id: string, @Body() shipOrderDto: ShipOrderDto, @Request() req: any) {
     return this.salesOrdersService.shipOrder(id, shipOrderDto, req.user.id);
   }
 }

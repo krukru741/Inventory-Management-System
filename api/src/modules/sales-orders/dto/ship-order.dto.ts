@@ -24,7 +24,7 @@ export class ShipmentItemDto {
   @ApiPropertyOptional()
   @IsString()
   @IsOptional()
-  lotNumber?: string;
+  serialNumber?: string;
 }
 
 export class ShipOrderDto {

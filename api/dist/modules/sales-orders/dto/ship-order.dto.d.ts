@@ -3,7 +3,7 @@ export declare class ShipmentItemDto {
     locationId: string;
     shippedQty: number;
     batchNumber?: string;
-    lotNumber?: string;
+    serialNumber?: string;
 }
 export declare class ShipOrderDto {
     carrier?: string;

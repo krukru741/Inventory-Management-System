@@ -109,7 +109,7 @@ let SalesOrdersService = class SalesOrdersService {
                         locationId: item.locationId,
                         shippedQty: item.shippedQty,
                         batchNumber: item.batchNumber,
-                        lotNumber: item.lotNumber,
+                        serialNumber: item.serialNumber,
                     },
                 });
                 const updatedSoItem = await tx.salesOrderItem.update({
@@ -144,7 +144,7 @@ let SalesOrdersService = class SalesOrdersService {
                         balanceAfter,
                         unitCost: inventory.unitCost,
                         batchNumber: item.batchNumber,
-                        lotNumber: item.lotNumber,
+                        serialNumber: item.serialNumber,
                         soId: so.id,
                         idempotencyKey: `shipment-${shipment.id}-${item.soiId}`,
                         performedById: userId,

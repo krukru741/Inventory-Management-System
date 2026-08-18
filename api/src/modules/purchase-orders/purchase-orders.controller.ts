@@ -18,7 +18,7 @@ export class PurchaseOrdersController {
   @Post()
   @Roles(UserRole.admin, UserRole.manager)
   @ApiOperation({ summary: 'Create a new purchase order' })
-  create(@Body() createPurchaseOrderDto: CreatePurchaseOrderDto, @Request() req) {
+  create(@Body() createPurchaseOrderDto: CreatePurchaseOrderDto, @Request() req: any) {
     return this.purchaseOrdersService.create(createPurchaseOrderDto, req.user.id);
   }
 
@@ -39,14 +39,14 @@ export class PurchaseOrdersController {
   @Patch(':id/approve')
   @Roles(UserRole.admin, UserRole.manager)
   @ApiOperation({ summary: 'Approve a purchase order' })
-  approve(@Param('id') id: string, @Request() req) {
+  approve(@Param('id') id: string, @Request() req: any) {
     return this.purchaseOrdersService.approve(id, req.user.id);
   }
 
   @Post(':id/receive')
   @Roles(UserRole.admin, UserRole.manager, UserRole.staff)
   @ApiOperation({ summary: 'Receive goods against a purchase order' })
-  receiveGoods(@Param('id') id: string, @Body() receiveGoodsDto: ReceiveGoodsDto, @Request() req) {
+  receiveGoods(@Param('id') id: string, @Body() receiveGoodsDto: ReceiveGoodsDto, @Request() req: any) {
     return this.purchaseOrdersService.receiveGoods(id, receiveGoodsDto, req.user.id);
   }
 }

@@ -1,7 +1,8 @@
 export declare class CreateCustomerDto {
     name: string;
-    email: string;
-    contactName?: string;
+    code: string;
+    email?: string;
+    contactPerson?: string;
     phone?: string;
     addressLine1?: string;
     addressLine2?: string;
@@ -9,10 +10,9 @@ export declare class CreateCustomerDto {
     state?: string;
     postalCode?: string;
     country?: string;
-    taxId?: string;
     creditLimit?: number;
     currency?: string;
-    paymentTerms?: string;
-    isActive?: boolean;
+    paymentTerms?: number;
     notes?: string;
+    isActive?: boolean;
 }
