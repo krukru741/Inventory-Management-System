@@ -9,8 +9,8 @@ export declare class WarehousesController {
     constructor(warehousesService: WarehousesService);
     create(createWarehouseDto: CreateWarehouseDto): Promise<{
         id: string;
-        email: string | null;
         name: string;
+        email: string | null;
         phone: string | null;
         isActive: boolean;
         createdAt: Date;
@@ -27,8 +27,8 @@ export declare class WarehousesController {
     findAll(paginationDto: PaginationDto): Promise<{
         data: {
             id: string;
-            email: string | null;
             name: string;
+            email: string | null;
             phone: string | null;
             isActive: boolean;
             createdAt: Date;
@@ -55,8 +55,8 @@ export declare class WarehousesController {
         } | null;
     } & {
         id: string;
-        email: string | null;
         name: string;
+        email: string | null;
         phone: string | null;
         isActive: boolean;
         createdAt: Date;
@@ -72,8 +72,8 @@ export declare class WarehousesController {
     }>;
     update(id: string, updateWarehouseDto: UpdateWarehouseDto): Promise<{
         id: string;
-        email: string | null;
         name: string;
+        email: string | null;
         phone: string | null;
         isActive: boolean;
         createdAt: Date;
@@ -89,8 +89,8 @@ export declare class WarehousesController {
     }>;
     remove(id: string): Promise<{
         id: string;
-        email: string | null;
         name: string;
+        email: string | null;
         phone: string | null;
         isActive: boolean;
         createdAt: Date;
@@ -111,9 +111,9 @@ export declare class WarehousesController {
         createdAt: Date;
         updatedAt: Date;
         code: string;
+        parentId: string | null;
         locationType: string;
         capacity: import("@prisma/client-runtime-utils").Decimal | null;
-        parentId: string | null;
         warehouseId: string;
     }[]>;
     addLocation(id: string, createLocationDto: CreateLocationDto): Promise<{
@@ -123,9 +123,9 @@ export declare class WarehousesController {
         createdAt: Date;
         updatedAt: Date;
         code: string;
+        parentId: string | null;
         locationType: string;
         capacity: import("@prisma/client-runtime-utils").Decimal | null;
-        parentId: string | null;
         warehouseId: string;
     }>;
     updateLocation(id: string, locationId: string, updateLocationDto: UpdateLocationDto): Promise<{
@@ -135,9 +135,9 @@ export declare class WarehousesController {
         createdAt: Date;
         updatedAt: Date;
         code: string;
+        parentId: string | null;
         locationType: string;
         capacity: import("@prisma/client-runtime-utils").Decimal | null;
-        parentId: string | null;
         warehouseId: string;
     }>;
 }

@@ -15,23 +15,23 @@ export declare class InventoryService {
     }>;
     getLowStockAlerts(): Promise<unknown>;
     adjustStock(adjustDto: AdjustInventoryDto, userId?: string): Promise<{
-        serialNumber: string | null;
         id: string;
-        idempotencyKey: string | null;
         productId: string;
-        variantId: string | null;
+        unitCost: Prisma.Decimal;
         locationId: string;
+        variantId: string | null;
         movementType: import("@prisma/client").$Enums.MovementType;
         quantity: Prisma.Decimal;
         balanceAfter: Prisma.Decimal;
-        unitCost: Prisma.Decimal;
         batchNumber: string | null;
         lotNumber: string | null;
+        serialNumber: string | null;
         expiryDate: Date | null;
         poId: string | null;
         soId: string | null;
         returnId: string | null;
         transferId: string | null;
+        idempotencyKey: string | null;
         reason: string | null;
         performedById: string | null;
         performedAt: Date;

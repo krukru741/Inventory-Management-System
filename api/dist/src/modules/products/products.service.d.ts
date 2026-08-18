@@ -7,6 +7,7 @@ export declare class ProductsService {
     private prisma;
     constructor(prisma: PrismaService);
     create(createProductDto: CreateProductDto, userId?: string): Promise<{
+        description: string | null;
         id: string;
         name: string;
         isActive: boolean;
@@ -14,11 +15,10 @@ export declare class ProductsService {
         updatedAt: Date;
         currency: string;
         notes: string | null;
-        description: string | null;
         sku: string;
-        barcode: string | null;
         categoryId: string | null;
         unitOfMeasure: string;
+        barcode: string | null;
         barcodeType: string | null;
         costPrice: import("@prisma/client-runtime-utils").Decimal;
         sellPrice: import("@prisma/client-runtime-utils").Decimal;
@@ -48,6 +48,7 @@ export declare class ProductsService {
                 url: string;
             }[];
         } & {
+            description: string | null;
             id: string;
             name: string;
             isActive: boolean;
@@ -55,11 +56,10 @@ export declare class ProductsService {
             updatedAt: Date;
             currency: string;
             notes: string | null;
-            description: string | null;
             sku: string;
-            barcode: string | null;
             categoryId: string | null;
             unitOfMeasure: string;
+            barcode: string | null;
             barcodeType: string | null;
             costPrice: import("@prisma/client-runtime-utils").Decimal;
             sellPrice: import("@prisma/client-runtime-utils").Decimal;
@@ -86,27 +86,6 @@ export declare class ProductsService {
         };
     }>;
     findOne(id: string): Promise<{
-        inventory: ({
-            location: {
-                id: string;
-                name: string | null;
-                code: string;
-            };
-        } & {
-            id: string;
-            createdAt: Date;
-            updatedAt: Date;
-            productId: string;
-            unitCost: import("@prisma/client-runtime-utils").Decimal;
-            locationId: string;
-            variantId: string | null;
-            quantity: import("@prisma/client-runtime-utils").Decimal;
-            batchNumber: string | null;
-            lotNumber: string | null;
-            expiryDate: Date | null;
-            reservedQty: import("@prisma/client-runtime-utils").Decimal;
-            manufactureDate: Date | null;
-        })[];
         productSuppliers: ({
             supplier: {
                 id: string;
@@ -132,12 +111,34 @@ export declare class ProductsService {
             id: string;
             createdAt: Date;
             sortOrder: number;
-            url: string;
             productId: string;
             isPrimary: boolean;
+            url: string;
             altText: string | null;
         }[];
+        inventory: ({
+            location: {
+                id: string;
+                name: string | null;
+                code: string;
+            };
+        } & {
+            id: string;
+            createdAt: Date;
+            updatedAt: Date;
+            productId: string;
+            unitCost: import("@prisma/client-runtime-utils").Decimal;
+            locationId: string;
+            variantId: string | null;
+            quantity: import("@prisma/client-runtime-utils").Decimal;
+            batchNumber: string | null;
+            lotNumber: string | null;
+            expiryDate: Date | null;
+            reservedQty: import("@prisma/client-runtime-utils").Decimal;
+            manufactureDate: Date | null;
+        })[];
     } & {
+        description: string | null;
         id: string;
         name: string;
         isActive: boolean;
@@ -145,11 +146,10 @@ export declare class ProductsService {
         updatedAt: Date;
         currency: string;
         notes: string | null;
-        description: string | null;
         sku: string;
-        barcode: string | null;
         categoryId: string | null;
         unitOfMeasure: string;
+        barcode: string | null;
         barcodeType: string | null;
         costPrice: import("@prisma/client-runtime-utils").Decimal;
         sellPrice: import("@prisma/client-runtime-utils").Decimal;
@@ -170,6 +170,7 @@ export declare class ProductsService {
         createdById: string | null;
     }>;
     update(id: string, updateProductDto: UpdateProductDto): Promise<{
+        description: string | null;
         id: string;
         name: string;
         isActive: boolean;
@@ -177,11 +178,10 @@ export declare class ProductsService {
         updatedAt: Date;
         currency: string;
         notes: string | null;
-        description: string | null;
         sku: string;
-        barcode: string | null;
         categoryId: string | null;
         unitOfMeasure: string;
+        barcode: string | null;
         barcodeType: string | null;
         costPrice: import("@prisma/client-runtime-utils").Decimal;
         sellPrice: import("@prisma/client-runtime-utils").Decimal;
@@ -202,6 +202,7 @@ export declare class ProductsService {
         createdById: string | null;
     }>;
     remove(id: string): Promise<{
+        description: string | null;
         id: string;
         name: string;
         isActive: boolean;
@@ -209,11 +210,10 @@ export declare class ProductsService {
         updatedAt: Date;
         currency: string;
         notes: string | null;
-        description: string | null;
         sku: string;
-        barcode: string | null;
         categoryId: string | null;
         unitOfMeasure: string;
+        barcode: string | null;
         barcodeType: string | null;
         costPrice: import("@prisma/client-runtime-utils").Decimal;
         sellPrice: import("@prisma/client-runtime-utils").Decimal;
@@ -244,7 +244,6 @@ export declare class ProductsService {
             } | null;
         } & {
             id: string;
-            serialNumber: string | null;
             productId: string;
             unitCost: import("@prisma/client-runtime-utils").Decimal;
             locationId: string;
@@ -254,6 +253,7 @@ export declare class ProductsService {
             balanceAfter: import("@prisma/client-runtime-utils").Decimal;
             batchNumber: string | null;
             lotNumber: string | null;
+            serialNumber: string | null;
             expiryDate: Date | null;
             poId: string | null;
             soId: string | null;
