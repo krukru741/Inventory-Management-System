@@ -7,14 +7,15 @@
 
 -- ---------------------------------------------------------------------------
 -- Default admin user  (password: ChangeMe123! — must be changed on first login)
--- hash generated with bcrypt cost=12 for "ChangeMe123!"
+-- pgcrypto crypt() generates a real bcrypt hash at migration runtime.
+-- Requires: CREATE EXTENSION pgcrypto  (done by run_migrations.sh)
 -- ---------------------------------------------------------------------------
 INSERT INTO users (id, name, email, password_hash, role)
 VALUES (
     '00000000-0000-0000-0000-000000000001',
     'System Administrator',
     'admin@inventory.local',
-    '$2b$12$K8Jvw3z9X1mQpL7nT4dR6OeVbHuWiYcNsAqFlMxZgDoPCkEjIrStU', -- placeholder hash
+    crypt('ChangeMe123!', gen_salt('bf', 12)),   -- real bcrypt hash, cost=12
     'admin'
 )
 ON CONFLICT (email) DO NOTHING;

@@ -65,7 +65,10 @@ CREATE TABLE serial_numbers (
     status          VARCHAR(30)     NOT NULL DEFAULT 'in_stock',
         -- in_stock | sold | returned | defective | scrapped
     sold_at         TIMESTAMPTZ,
-    so_id           UUID,           -- FK to sales_orders added in migration 010
+    so_id           UUID,           -- FK to sales_orders(id) wired in migration 011_create_sales_orders.sql
+                                    -- (sales_orders does not exist yet at this point in the migration sequence)
+                                    -- Running this file in isolation will leave so_id without a FK — always run
+                                    -- migrations in order. The constraint is: fk_serial_numbers_so_id.
     notes           TEXT,
     created_at      TIMESTAMPTZ     NOT NULL DEFAULT NOW(),
     updated_at      TIMESTAMPTZ     NOT NULL DEFAULT NOW(),

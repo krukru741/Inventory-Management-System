@@ -30,6 +30,7 @@ All migrations must be applied **in numeric order** and in a **single transactio
 | [`014_create_notifications.sql`](migrations/014_create_notifications.sql) | Alert rules & notification outbox |
 | [`015_create_views.sql`](migrations/015_create_views.sql) | Read-only helper views |
 | [`016_seed_data.sql`](migrations/016_seed_data.sql) | Bootstrap seed (dev/staging only) |
+| [`017_fix_schema_gaps.sql`](migrations/017_fix_schema_gaps.sql) | Post-review patches (see Changelog) |
 
 ## Running Migrations
 
@@ -63,10 +64,25 @@ Tools like **Flyway**, **Liquibase**, or **golang-migrate** can manage migration
 - **Flyway**: `V001__create_enums.sql`
 - **golang-migrate**: `000001_create_enums.up.sql`
 
+## Changelog
+
+### 017 — Post-Review Patches
+
+| # | Issue | Fix |
+|---|---|---|
+| 1 | `inventory_unique_layer` constraint broken for non-batched products — PostgreSQL treats `NULL != NULL` in `UNIQUE` constraints, so two rows with the same product+location and no batch would not conflict | Dropped the table `UNIQUE` constraint and replaced it with two partial unique indexes: `inventory_unique_no_batch` (when both batch fields are `NULL`) and `inventory_unique_with_batch` (when at least one is set) |
+| 2 | `movement_type` had no `cycle_count_adjustment` value, making count-adjustment ledger rows indistinguishable from ad-hoc corrections | Added `cycle_count_adjustment` enum value after `assembly_out`; updated enum comment with sign conventions |
+| 3 | `cycle_count_items.adjustment_posted` flag confirmed a movement was created but didn't point to which one | Added `stock_movement_id UUID REFERENCES stock_movements(id)` column with a partial index |
+| 4 | No trigger guarded against `inventory.quantity` diverging from the ledger — app code was the only safeguard | Added `sync_inventory_on_movement()` AFTER INSERT trigger on `stock_movements`; uses `balance_after` as the authoritative quantity and IS NOT DISTINCT FROM for NULL-safe batch matching |
+| 5 | Seed password hash was a non-functional placeholder string | Changed to `crypt('ChangeMe123!', gen_salt('bf', 12))` using pgcrypto (already enabled by the runner) |
+
+---
+
 ## Key Design Decisions
 
+
 > [!IMPORTANT]
-> **Ledger-based stock tracking**: The `stock_movements` table is the **authoritative source of truth**. The `inventory` table is a **performance cache** only. Every stock change must insert a `stock_movements` row AND update `inventory.quantity` in the **same database transaction**.
+> **Ledger-based stock tracking**: The `stock_movements` table is the **authoritative source of truth**. The `inventory` table is a **performance cache** only. Every stock change must insert a `stock_movements` row AND update `inventory.quantity` in the **same database transaction**. The `sync_inventory_on_movement()` trigger (added in 017) acts as a safety net but does not replace correct application code.
 
 > [!NOTE]
 > **Idempotency keys** on `stock_movements` allow the application layer to safely retry API calls without double-counting stock.
@@ -76,6 +92,20 @@ Tools like **Flyway**, **Liquibase**, or **golang-migrate** can manage migration
 
 > [!TIP]
 > The `v_stock_summary`, `v_low_stock_alerts`, and `v_open_purchase_orders` views cover the most common dashboard queries without writing raw SQL in application code.
+
+| Design Decision | Detail |
+|---|---|
+| **Ledger-based stock** | `stock_movements` is append-only; `inventory` is a transactional cache — synced by app code + safety-net trigger (017) |
+| **Idempotency** | `stock_movements.idempotency_key` UNIQUE prevents double-counting on retries |
+| **Audit trail** | `audit_logs` is append-only with JSONB `old_data` / `new_data` snapshots |
+| **Concurrency safety** | `inventory` CHECK constraints prevent negative stock and over-reservation |
+| **Partial deliveries** | `goods_receipt_items` rows per delivery; `received_qty` accumulates on PO items |
+| **Batch/serial tracking** | Opt-in per product via `track_batch` / `track_serial` flags |
+| **NULL-safe batch uniqueness** | Two partial unique indexes (017) replace the broken `UNIQUE` constraint; non-batched rows are correctly de-duplicated |
+| **Cycle count traceability** | `cycle_count_items.stock_movement_id` (017) links each count line to its ledger entry |
+| **Fuzzy search** | `gin_trgm_ops` index on `products.name` (requires `pg_trgm` extension) |
+
+
 
 ## Entity Relationship Overview
 
