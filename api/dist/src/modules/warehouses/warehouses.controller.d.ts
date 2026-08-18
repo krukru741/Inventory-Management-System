@@ -10,11 +10,6 @@ export declare class WarehousesController {
     create(createWarehouseDto: CreateWarehouseDto): Promise<{
         id: string;
         name: string;
-        email: string | null;
-        phone: string | null;
-        isActive: boolean;
-        createdAt: Date;
-        updatedAt: Date;
         code: string;
         addressLine1: string | null;
         addressLine2: string | null;
@@ -22,17 +17,17 @@ export declare class WarehousesController {
         state: string | null;
         postalCode: string | null;
         country: string | null;
+        phone: string | null;
+        email: string | null;
+        isActive: boolean;
+        createdAt: Date;
+        updatedAt: Date;
         managerId: string | null;
     }>;
     findAll(paginationDto: PaginationDto): Promise<{
         data: {
             id: string;
             name: string;
-            email: string | null;
-            phone: string | null;
-            isActive: boolean;
-            createdAt: Date;
-            updatedAt: Date;
             code: string;
             addressLine1: string | null;
             addressLine2: string | null;
@@ -40,6 +35,11 @@ export declare class WarehousesController {
             state: string | null;
             postalCode: string | null;
             country: string | null;
+            phone: string | null;
+            email: string | null;
+            isActive: boolean;
+            createdAt: Date;
+            updatedAt: Date;
             managerId: string | null;
         }[];
         meta: {
@@ -48,6 +48,22 @@ export declare class WarehousesController {
             limit: number;
         };
     }>;
+    findAllLocations(): Promise<({
+        warehouse: {
+            name: string;
+        };
+    } & {
+        id: string;
+        name: string | null;
+        code: string;
+        isActive: boolean;
+        createdAt: Date;
+        updatedAt: Date;
+        warehouseId: string;
+        parentId: string | null;
+        locationType: string;
+        capacity: import("@prisma/client-runtime-utils").Decimal | null;
+    })[]>;
     findOne(id: string): Promise<{
         manager: {
             id: string;
@@ -56,11 +72,6 @@ export declare class WarehousesController {
     } & {
         id: string;
         name: string;
-        email: string | null;
-        phone: string | null;
-        isActive: boolean;
-        createdAt: Date;
-        updatedAt: Date;
         code: string;
         addressLine1: string | null;
         addressLine2: string | null;
@@ -68,16 +79,16 @@ export declare class WarehousesController {
         state: string | null;
         postalCode: string | null;
         country: string | null;
+        phone: string | null;
+        email: string | null;
+        isActive: boolean;
+        createdAt: Date;
+        updatedAt: Date;
         managerId: string | null;
     }>;
     update(id: string, updateWarehouseDto: UpdateWarehouseDto): Promise<{
         id: string;
         name: string;
-        email: string | null;
-        phone: string | null;
-        isActive: boolean;
-        createdAt: Date;
-        updatedAt: Date;
         code: string;
         addressLine1: string | null;
         addressLine2: string | null;
@@ -85,16 +96,16 @@ export declare class WarehousesController {
         state: string | null;
         postalCode: string | null;
         country: string | null;
+        phone: string | null;
+        email: string | null;
+        isActive: boolean;
+        createdAt: Date;
+        updatedAt: Date;
         managerId: string | null;
     }>;
     remove(id: string): Promise<{
         id: string;
         name: string;
-        email: string | null;
-        phone: string | null;
-        isActive: boolean;
-        createdAt: Date;
-        updatedAt: Date;
         code: string;
         addressLine1: string | null;
         addressLine2: string | null;
@@ -102,42 +113,47 @@ export declare class WarehousesController {
         state: string | null;
         postalCode: string | null;
         country: string | null;
+        phone: string | null;
+        email: string | null;
+        isActive: boolean;
+        createdAt: Date;
+        updatedAt: Date;
         managerId: string | null;
     }>;
     findLocations(id: string): Promise<{
         id: string;
         name: string | null;
+        code: string;
         isActive: boolean;
         createdAt: Date;
         updatedAt: Date;
-        code: string;
+        warehouseId: string;
         parentId: string | null;
         locationType: string;
         capacity: import("@prisma/client-runtime-utils").Decimal | null;
-        warehouseId: string;
     }[]>;
     addLocation(id: string, createLocationDto: CreateLocationDto): Promise<{
         id: string;
         name: string | null;
+        code: string;
         isActive: boolean;
         createdAt: Date;
         updatedAt: Date;
-        code: string;
+        warehouseId: string;
         parentId: string | null;
         locationType: string;
         capacity: import("@prisma/client-runtime-utils").Decimal | null;
-        warehouseId: string;
     }>;
     updateLocation(id: string, locationId: string, updateLocationDto: UpdateLocationDto): Promise<{
         id: string;
         name: string | null;
+        code: string;
         isActive: boolean;
         createdAt: Date;
         updatedAt: Date;
-        code: string;
+        warehouseId: string;
         parentId: string | null;
         locationType: string;
         capacity: import("@prisma/client-runtime-utils").Decimal | null;
-        warehouseId: string;
     }>;
 }

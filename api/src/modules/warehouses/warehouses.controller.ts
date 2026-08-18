@@ -31,6 +31,12 @@ export class WarehousesController {
     return this.warehousesService.findAll(paginationDto);
   }
 
+  @Get('locations')
+  @ApiOperation({ summary: 'Get all locations across all warehouses' })
+  findAllLocations() {
+    return this.warehousesService.findAllLocations();
+  }
+
   @Get(':id')
   @ApiOperation({ summary: 'Get a warehouse by ID' })
   findOne(@Param('id') id: string) {

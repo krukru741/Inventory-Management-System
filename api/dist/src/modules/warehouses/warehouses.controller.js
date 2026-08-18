@@ -36,6 +36,9 @@ let WarehousesController = class WarehousesController {
     findAll(paginationDto) {
         return this.warehousesService.findAll(paginationDto);
     }
+    findAllLocations() {
+        return this.warehousesService.findAllLocations();
+    }
     findOne(id) {
         return this.warehousesService.findOne(id);
     }
@@ -73,6 +76,13 @@ __decorate([
     __metadata("design:paramtypes", [pagination_dto_1.PaginationDto]),
     __metadata("design:returntype", void 0)
 ], WarehousesController.prototype, "findAll", null);
+__decorate([
+    (0, common_1.Get)('locations'),
+    (0, swagger_1.ApiOperation)({ summary: 'Get all locations across all warehouses' }),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", []),
+    __metadata("design:returntype", void 0)
+], WarehousesController.prototype, "findAllLocations", null);
 __decorate([
     (0, common_1.Get)(':id'),
     (0, swagger_1.ApiOperation)({ summary: 'Get a warehouse by ID' }),

@@ -99,7 +99,7 @@ function useLocationOptions() {
     return useQuery<LocationOption[]>({
         queryKey: ['locations', 'options'],
         queryFn: async () => {
-            const { data } = await api.get('/locations', { params: { limit: 500 } });
+            const { data } = await api.get('/warehouses/locations');
             return (data.data ?? data).map((l: any) => ({
                 id: l.id,
                 code: l.code,
@@ -364,7 +364,7 @@ export default function InventoryPage() {
         return { totalSkus, totalValue, lowCount, outCount };
     }, [summary, lowStock]);
 
-    const totalPages = summary ? Math.max(1, Math.ceil(summary.meta.total / limit)) : 1;
+    const totalPages = summary?.meta?.total ? Math.max(1, Math.ceil(summary.meta.total / limit)) : 1;
 
     return (
         <div className="space-y-6">

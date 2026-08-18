@@ -23,16 +23,22 @@ let WarehousesService = class WarehousesService {
         });
     }
     async findAll(paginationDto) {
-        const { skip, limit } = paginationDto;
         const [data, total] = await Promise.all([
             this.prisma.warehouse.findMany({
-                skip,
-                take: limit,
-                orderBy: { name: 'asc' },
+                where: { isActive: true },
+                skip: paginationDto.skip,
+                take: paginationDto.limit,
             }),
-            this.prisma.warehouse.count(),
+            this.prisma.warehouse.count({ where: { isActive: true } }),
         ]);
-        return { data, meta: { total, page: paginationDto.page, limit } };
+        return { data, meta: { total, page: paginationDto.page, limit: paginationDto.limit } };
+    }
+    async findAllLocations() {
+        return this.prisma.location.findMany({
+            where: { isActive: true },
+            include: { warehouse: { select: { name: true } } },
+            orderBy: [{ warehouseId: 'asc' }, { code: 'asc' }],
+        });
     }
     async findOne(id) {
         const warehouse = await this.prisma.warehouse.findUnique({
