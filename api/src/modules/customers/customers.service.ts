@@ -9,10 +9,10 @@ export class CustomersService {
 
   async create(createCustomerDto: CreateCustomerDto) {
     const existing = await this.prisma.customer.findUnique({
-      where: { email: createCustomerDto.email },
+      where: { code: createCustomerDto.code },
     });
     if (existing) {
-      throw new ConflictException('Customer with this email already exists');
+      throw new ConflictException('Customer with this code already exists');
     }
     return this.prisma.customer.create({
       data: createCustomerDto,
@@ -35,12 +35,12 @@ export class CustomersService {
 
   async update(id: string, updateCustomerDto: UpdateCustomerDto) {
     await this.findOne(id);
-    if (updateCustomerDto.email) {
+    if (updateCustomerDto.code) {
       const existing = await this.prisma.customer.findUnique({
-        where: { email: updateCustomerDto.email },
+        where: { code: updateCustomerDto.code },
       });
       if (existing && existing.id !== id) {
-        throw new ConflictException('Email already in use by another customer');
+        throw new ConflictException('Code already in use by another customer');
       }
     }
     return this.prisma.customer.update({
