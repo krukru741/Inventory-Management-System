@@ -35,12 +35,12 @@ interface TurnoverRow {
 
 async function fetchDashboardMetrics(): Promise<DashboardMetrics> {
     const { data } = await api.get("/reports/dashboard");
-    return data;
+    return data.data ?? data; // unwrap { data, meta } envelope, fall back if not wrapped
 }
 
 async function fetchTurnover(): Promise<TurnoverRow[]> {
     const { data } = await api.get("/reports/turnover");
-    return data;
+    return data.data ?? data;
 }
 
 const currency = new Intl.NumberFormat("en-US", {
@@ -99,7 +99,7 @@ export default function DashboardPage() {
         queryFn: fetchTurnover,
     });
 
-    const topMovers = (turnover ?? [])
+    const topMovers = (Array.isArray(turnover) ? turnover : [])
         .map((row) => ({
             name: row.sku,
             fullName: row.product_name,
