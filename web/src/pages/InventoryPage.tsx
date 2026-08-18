@@ -68,7 +68,7 @@ function useStockSummary(page: number, limit: number, search: string) {
             const { data } = await api.get('/inventory', {
                 params: { page, limit, search: search || undefined },
             });
-            return data.data ?? data;
+            return data;
         },
         placeholderData: (prev) => prev,
     });
