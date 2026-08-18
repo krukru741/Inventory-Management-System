@@ -362,7 +362,7 @@ export default function InventoryPage() {
     const [rowContext, setRowContext] = useState<{ productId?: string; locationId?: string }>({});
     const limit = 20;
 
-    const { data: summary, isLoading, isFetching } = useStockSummary(page, limit, search);
+    const { data: summary, isLoading, isFetching, isError } = useStockSummary(page, limit, search);
     const { data: lowStock } = useLowStockAlerts();
 
     const stats = useMemo(() => {
@@ -477,6 +477,12 @@ export default function InventoryPage() {
                                 <tr>
                                     <td colSpan={8} className="px-4 py-10 text-center text-[#A08A72]">
                                         Loading stock levels…
+                                    </td>
+                                </tr>
+                            ) : isError ? (
+                                <tr>
+                                    <td colSpan={8} className="px-4 py-10 text-center text-[#8C2E27]">
+                                        Couldn't load inventory data. Try refreshing.
                                     </td>
                                 </tr>
                             ) : summary?.data?.length === 0 ? (
