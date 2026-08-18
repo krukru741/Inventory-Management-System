@@ -5,30 +5,7 @@ export declare class InventoryController {
     private readonly inventoryService;
     constructor(inventoryService: InventoryService);
     getStockSummary(paginationDto: PaginationDto, productId?: string): Promise<{
-        data: ({
-            product: {
-                name: string;
-                sku: string;
-            };
-            location: {
-                name: string | null;
-                code: string;
-            };
-        } & {
-            id: string;
-            createdAt: Date;
-            updatedAt: Date;
-            productId: string;
-            unitCost: import("@prisma/client-runtime-utils").Decimal;
-            locationId: string;
-            variantId: string | null;
-            quantity: import("@prisma/client-runtime-utils").Decimal;
-            batchNumber: string | null;
-            lotNumber: string | null;
-            expiryDate: Date | null;
-            reservedQty: import("@prisma/client-runtime-utils").Decimal;
-            manufactureDate: Date | null;
-        })[];
+        data: any[];
         meta: {
             total: number;
             page: number;
@@ -37,15 +14,16 @@ export declare class InventoryController {
     }>;
     getLowStockAlerts(): Promise<unknown>;
     adjustStock(adjustInventoryDto: AdjustInventoryDto, user: any): Promise<{
-        id: string;
         serialNumber: string | null;
+        id: string;
+        idempotencyKey: string | null;
         productId: string;
-        unitCost: import("@prisma/client-runtime-utils").Decimal;
-        locationId: string;
         variantId: string | null;
+        locationId: string;
         movementType: import("@prisma/client").$Enums.MovementType;
         quantity: import("@prisma/client-runtime-utils").Decimal;
         balanceAfter: import("@prisma/client-runtime-utils").Decimal;
+        unitCost: import("@prisma/client-runtime-utils").Decimal;
         batchNumber: string | null;
         lotNumber: string | null;
         expiryDate: Date | null;
@@ -53,7 +31,6 @@ export declare class InventoryController {
         soId: string | null;
         returnId: string | null;
         transferId: string | null;
-        idempotencyKey: string | null;
         reason: string | null;
         performedById: string | null;
         performedAt: Date;

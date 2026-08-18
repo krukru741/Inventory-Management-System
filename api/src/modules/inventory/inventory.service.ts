@@ -1,39 +1,44 @@
-import { Injectable, BadRequestException } from '@nestjs/common';
+import {
+  Injectable,
+  BadRequestException,
+  ConflictException,
+} from '@nestjs/common';
+import { Prisma, MovementType } from '@prisma/client';
 import { PrismaService } from '../../prisma/prisma.service';
 import { AdjustInventoryDto } from './dto/adjust-inventory.dto';
-import { MovementType, Prisma } from '@prisma/client';
 import { PaginationDto } from '../../common/dto/pagination.dto';
 
 @Injectable()
 export class InventoryService {
-  constructor(private prisma: PrismaService) {}
+  constructor(private prisma: PrismaService) { }
 
   async getStockSummary(paginationDto: PaginationDto, productId?: string) {
-    // In a real app, this would query the `v_stock_summary` view using raw SQL
-    // Example: return this.prisma.$queryRaw`SELECT * FROM v_stock_summary OFFSET ${paginationDto.skip} LIMIT ${paginationDto.limit}`;
-    
-    // Fallback to Prisma query if views aren't available in schema
-    const where = productId ? { productId } : {};
-    
-    const [data, total] = await Promise.all([
-       this.prisma.inventory.findMany({
-           where,
-           skip: paginationDto.skip,
-           take: paginationDto.limit,
-           include: {
-               product: { select: { sku: true, name: true } },
-               location: { select: { code: true, name: true } }
-           }
-       }),
-       this.prisma.inventory.count({ where })
-    ]);
+    // Prefer the DB view — it aggregates across batches/locations and
+    // computes available_qty (on_hand - reserved) for us.
+    const rows = await this.prisma.$queryRaw<any[]>`
+      SELECT * FROM v_stock_summary
+      ${productId ? Prisma.sql`WHERE product_id = ${productId}::uuid` : Prisma.empty}
+      ORDER BY sku
+      OFFSET ${paginationDto.skip} LIMIT ${paginationDto.limit}
+    `;
 
-    return { data, meta: { total, page: paginationDto.page, limit: paginationDto.limit } };
+    const [{ count }] = await this.prisma.$queryRaw<{ count: bigint }[]>`
+      SELECT COUNT(*)::bigint AS count FROM v_stock_summary
+      ${productId ? Prisma.sql`WHERE product_id = ${productId}::uuid` : Prisma.empty}
+    `;
+
+    return {
+      data: rows,
+      meta: {
+        total: Number(count),
+        page: paginationDto.page,
+        limit: paginationDto.limit,
+      },
+    };
   }
 
   async getLowStockAlerts() {
-     // This would query `v_low_stock_alerts` view
-     return this.prisma.$queryRaw`SELECT * FROM v_low_stock_alerts`;
+    return this.prisma.$queryRaw`SELECT * FROM v_low_stock_alerts`;
   }
 
   async adjustStock(adjustDto: AdjustInventoryDto, userId?: string) {
@@ -41,50 +46,138 @@ export class InventoryService {
       throw new BadRequestException('Quantity change cannot be zero');
     }
 
-    const movementType = adjustDto.quantityChange > 0 
-      ? MovementType.adjustment_in 
-      : MovementType.adjustment_out;
+    const movementType =
+      adjustDto.quantityChange > 0
+        ? MovementType.adjustment_in
+        : MovementType.adjustment_out;
 
-    return this.prisma.$transaction(async (tx) => {
-      // 1. Get current stock
-      const currentStock = await tx.inventory.findFirst({
-        where: {
-          productId: adjustDto.productId,
-          locationId: adjustDto.locationId,
-          variantId: adjustDto.variantId || null,
-          batchNumber: adjustDto.batchNumber || null,
-          lotNumber: adjustDto.lotNumber || null,
+    try {
+      return await this.prisma.$transaction(async (tx) => {
+        // ---------------------------------------------------------------
+        // Idempotency check FIRST, before taking any locks. If this exact
+        // request already succeeded, return the original movement rather
+        // than erroring or double-applying the adjustment.
+        // ---------------------------------------------------------------
+        if (adjustDto.idempotencyKey) {
+          const existing = await tx.stockMovement.findUnique({
+            where: { idempotencyKey: adjustDto.idempotencyKey },
+          });
+          if (existing) {
+            return existing;
+          }
         }
+
+        // ---------------------------------------------------------------
+        // Lock the target inventory row (or the "gap" if it doesn't exist
+        // yet) for the duration of this transaction. Postgres advisory
+        // locks are used instead of SELECT ... FOR UPDATE because the
+        // inventory row may not exist yet on the very first movement for
+        // a given product+location+batch layer — you can't row-lock a
+        // row that isn't there. The lock key is derived deterministically
+        // from the stock-layer identity so concurrent requests for the
+        // SAME layer serialize, while different layers proceed in
+        // parallel.
+        // ---------------------------------------------------------------
+        const lockKey = [
+          adjustDto.productId,
+          adjustDto.locationId,
+          adjustDto.variantId ?? '',
+          adjustDto.batchNumber ?? '',
+          adjustDto.lotNumber ?? '',
+        ].join('|');
+
+        await tx.$executeRaw`SELECT pg_advisory_xact_lock(hashtext(${lockKey}))`;
+
+        // Now safe to read — no concurrent transaction can be mid-flight
+        // on this same stock layer.
+        const currentStock = await tx.inventory.findFirst({
+          where: {
+            productId: adjustDto.productId,
+            locationId: adjustDto.locationId,
+            variantId: adjustDto.variantId ?? null,
+            batchNumber: adjustDto.batchNumber ?? null,
+            lotNumber: adjustDto.lotNumber ?? null,
+          },
+        });
+
+        const currentQty = currentStock
+          ? currentStock.quantity
+          : new Prisma.Decimal(0);
+        const delta = new Prisma.Decimal(adjustDto.quantityChange);
+        const newQty = currentQty.plus(delta);
+
+        if (newQty.lessThan(0)) {
+          throw new BadRequestException(
+            `Insufficient stock. Current: ${currentQty.toString()}, ` +
+            `requested reduction: ${delta.abs().toString()}`,
+          );
+        }
+
+        // Reserved-qty guard: don't let an adjustment drop on-hand stock
+        // below what's already allocated to open sales orders.
+        if (
+          currentStock &&
+          newQty.lessThan(currentStock.reservedQty)
+        ) {
+          throw new BadRequestException(
+            `Cannot reduce stock below reserved quantity ` +
+            `(${currentStock.reservedQty.toString()} reserved).`,
+          );
+        }
+
+        // ---------------------------------------------------------------
+        // Insert the ledger row. The AFTER INSERT trigger
+        // (sync_inventory_on_movement) upserts `inventory` using
+        // balance_after, so we don't touch `inventory` directly here —
+        // but because we're still holding the advisory lock, no other
+        // transaction can race us between this insert and the trigger's
+        // upsert completing.
+        // ---------------------------------------------------------------
+        const movement = await tx.stockMovement.create({
+          data: {
+            productId: adjustDto.productId,
+            locationId: adjustDto.locationId,
+            variantId: adjustDto.variantId,
+            movementType,
+            quantity: delta.abs(),
+            balanceAfter: newQty,
+            batchNumber: adjustDto.batchNumber,
+            lotNumber: adjustDto.lotNumber,
+            idempotencyKey: adjustDto.idempotencyKey,
+            reason: adjustDto.reason,
+            performedById: userId,
+          },
+        });
+
+        return movement;
       });
-
-      const currentQty = currentStock ? Number(currentStock.quantity) : 0;
-      const newQty = currentQty + adjustDto.quantityChange;
-
-      if (newQty < 0) {
-        throw new BadRequestException(`Insufficient stock. Current: ${currentQty}, Requested reduction: ${Math.abs(adjustDto.quantityChange)}`);
+    } catch (err) {
+      // Unique violation on idempotency_key: a concurrent request with the
+      // same key beat us to it after our pre-check. Fetch and return it
+      // rather than surfacing a raw DB error.
+      if (
+        err instanceof Prisma.PrismaClientKnownRequestError &&
+        err.code === 'P2002' &&
+        adjustDto.idempotencyKey
+      ) {
+        const existing = await this.prisma.stockMovement.findUnique({
+          where: { idempotencyKey: adjustDto.idempotencyKey },
+        });
+        if (existing) return existing;
+        throw new ConflictException('Duplicate request could not be resolved.');
       }
 
-      // 2. Insert Stock Movement
-      // The DB trigger `sync_inventory_on_movement` will automatically handle upserting
-      // the inventory table using `balanceAfter`. However, we explicitly pass the exact balance
-      // here to maintain standard CQRS principles at the application level.
-      const movement = await tx.stockMovement.create({
-        data: {
-          productId: adjustDto.productId,
-          locationId: adjustDto.locationId,
-          variantId: adjustDto.variantId,
-          movementType: movementType,
-          quantity: Math.abs(adjustDto.quantityChange), // DB expects absolute value for the movement row
-          balanceAfter: newQty,
-          batchNumber: adjustDto.batchNumber,
-          lotNumber: adjustDto.lotNumber,
-          idempotencyKey: adjustDto.idempotencyKey,
-          reason: adjustDto.reason,
-          performedById: userId,
-        }
-      });
+      // Foreign key violation: bad productId/locationId/variantId.
+      if (
+        err instanceof Prisma.PrismaClientKnownRequestError &&
+        err.code === 'P2003'
+      ) {
+        throw new BadRequestException(
+          'One or more referenced records (product, location, or variant) do not exist.',
+        );
+      }
 
-      return movement;
-    });
+      throw err;
+    }
   }
 }

@@ -6,7 +6,6 @@ import DashboardLayout from './layouts/DashboardLayout';
 
 // Pages
 import LoginPage from './pages/LoginPage';
-import ProductsPage from './pages/ProductsPage';
 import DashboardPage from './pages/DashboardPage';
 
 const queryClient = new QueryClient({
@@ -32,7 +31,7 @@ function AppRoutes() {
         <Route element={<DashboardLayout />}>
           <Route path="/" element={<Navigate to="/dashboard" replace />} />
           <Route path="/dashboard" element={<DashboardPage />} />
-          <Route path="/inventory" element={<ProductsPage />} />
+          <Route path="/inventory" element={<div className="p-6">Inventorry (Coming Soon)</div>} />
           <Route path="/purchasing" element={<div className="p-6">Purchasing (Coming Soon)</div>} />
           <Route path="/reports" element={<div className="p-6">Reports (Coming Soon)</div>} />
         </Route>
