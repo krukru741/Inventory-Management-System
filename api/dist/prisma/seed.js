@@ -55,8 +55,7 @@ async function main() {
         create: {
             email: 'admin@example.com',
             passwordHash,
-            firstName: 'System',
-            lastName: 'Admin',
+            name: 'System Admin',
             role: client_1.UserRole.admin,
             isActive: true,
         },
@@ -68,8 +67,7 @@ async function main() {
         create: {
             email: 'manager@example.com',
             passwordHash,
-            firstName: 'Warehouse',
-            lastName: 'Manager',
+            name: 'Warehouse Manager',
             role: client_1.UserRole.manager,
             isActive: true,
         },
@@ -81,14 +79,18 @@ async function main() {
         create: {
             code: 'WH-MAIN',
             name: 'Main New York Warehouse',
-            address: '123 Tech Blvd, New York, NY 10001',
+            addressLine1: '123 Tech Blvd',
+            city: 'New York',
+            state: 'NY',
+            postalCode: '10001',
+            country: 'USA',
             isActive: true,
             locations: {
                 create: [
-                    { code: 'LOC-A1', name: 'Zone A - Rack 1', type: 'rack' },
-                    { code: 'LOC-A2', name: 'Zone A - Rack 2', type: 'rack' },
-                    { code: 'LOC-RECV', name: 'Receiving Dock', type: 'receiving_dock' },
-                    { code: 'LOC-SHIP', name: 'Shipping Dock', type: 'shipping_dock' },
+                    { code: 'LOC-A1', name: 'Zone A - Rack 1', locationType: 'rack' },
+                    { code: 'LOC-A2', name: 'Zone A - Rack 2', locationType: 'rack' },
+                    { code: 'LOC-RECV', name: 'Receiving Dock', locationType: 'receiving_dock' },
+                    { code: 'LOC-SHIP', name: 'Shipping Dock', locationType: 'shipping_dock' },
                 ],
             },
         },
@@ -100,7 +102,7 @@ async function main() {
         create: {
             code: 'SUP-TECH',
             name: 'Global Tech Supply Co.',
-            contactName: 'Jane Smith',
+            contactPerson: 'Jane Smith',
             email: 'sales@globaltech.example.com',
             phone: '+1-555-0198',
             isActive: true,
@@ -157,7 +159,7 @@ async function main() {
         create: {
             code: 'CUST-001',
             name: 'Acme Corp',
-            contactName: 'John Doe',
+            contactPerson: 'John Doe',
             email: 'john.doe@acmecorp.example.com',
             isActive: true,
         },
