@@ -17,6 +17,7 @@ const common_1 = require("@nestjs/common");
 const sales_orders_service_1 = require("./sales-orders.service");
 const create_sales_order_dto_1 = require("./dto/create-sales-order.dto");
 const ship_order_dto_1 = require("./dto/ship-order.dto");
+const process_return_dto_1 = require("./dto/process-return.dto");
 const swagger_1 = require("@nestjs/swagger");
 const jwt_auth_guard_1 = require("../auth/guards/jwt-auth.guard");
 const roles_guard_1 = require("../auth/guards/roles.guard");
@@ -26,6 +27,9 @@ let SalesOrdersController = class SalesOrdersController {
     salesOrdersService;
     constructor(salesOrdersService) {
         this.salesOrdersService = salesOrdersService;
+    }
+    processReturn(returnDto, req) {
+        return this.salesOrdersService.processReturn(returnDto, req.user.sub);
     }
     create(createSalesOrderDto, req) {
         return this.salesOrdersService.create(createSalesOrderDto, req.user.id);
@@ -44,6 +48,16 @@ let SalesOrdersController = class SalesOrdersController {
     }
 };
 exports.SalesOrdersController = SalesOrdersController;
+__decorate([
+    (0, common_1.Post)('returns'),
+    (0, roles_decorator_1.Roles)(client_1.UserRole.admin, client_1.UserRole.manager, client_1.UserRole.staff),
+    (0, swagger_1.ApiOperation)({ summary: 'Process a return for a sales order' }),
+    __param(0, (0, common_1.Body)()),
+    __param(1, (0, common_1.Request)()),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", [process_return_dto_1.ProcessReturnDto, Object]),
+    __metadata("design:returntype", void 0)
+], SalesOrdersController.prototype, "processReturn", null);
 __decorate([
     (0, common_1.Post)(),
     (0, roles_decorator_1.Roles)(client_1.UserRole.admin, client_1.UserRole.manager, client_1.UserRole.staff),

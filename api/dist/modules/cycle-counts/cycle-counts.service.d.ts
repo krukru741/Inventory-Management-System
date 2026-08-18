@@ -5,31 +5,43 @@ export declare class CycleCountsService {
     constructor(prisma: PrismaService);
     create(createDto: CreateCycleCountDto, userId: string): Promise<{
         id: string;
-        countNumber: string;
+        createdAt: Date;
+        updatedAt: Date;
+        notes: string | null;
+        createdById: string | null;
+        warehouseId: string;
         status: string;
+        countNumber: string;
         scheduledDate: Date | null;
         startedAt: Date | null;
         completedAt: Date | null;
-        notes: string | null;
-        createdAt: Date;
-        updatedAt: Date;
-        warehouseId: string;
-        createdById: string | null;
     }>;
-    countItem(countId: string, itemId: string, countDto: CountItemDto, userId: string): Promise<{
+    countItem(countId: string, locationId: string, productId: string, countDto: CountItemDto, userId: string): Promise<{
         id: string;
         createdAt: Date;
-        countId: string;
         productId: string;
-        variantId: string | null;
         locationId: string;
-        systemQty: import("@prisma/client-runtime-utils").Decimal;
-        countedQty: import("@prisma/client-runtime-utils").Decimal | null;
+        variantId: string | null;
         batchNumber: string | null;
+        countedQty: import("@prisma/client-runtime-utils").Decimal | null;
+        countId: string;
+        systemQty: import("@prisma/client-runtime-utils").Decimal;
         countedById: string | null;
         countedAt: Date | null;
         adjustmentPosted: boolean;
         stockMovementId: string | null;
     }>;
-    postAdjustments(countId: string, userId: string): Promise<void>;
+    postAdjustments(countId: string, userId: string): Promise<{
+        id: string;
+        createdAt: Date;
+        updatedAt: Date;
+        notes: string | null;
+        createdById: string | null;
+        warehouseId: string;
+        status: string;
+        countNumber: string;
+        scheduledDate: Date | null;
+        startedAt: Date | null;
+        completedAt: Date | null;
+    }>;
 }

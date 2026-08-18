@@ -18,21 +18,94 @@ export class CycleCountsService {
     });
   }
 
-  async countItem(countId: string, itemId: string, countDto: CountItemDto, userId: string) {
-    return this.prisma.cycleCountItem.upsert({
-      where: {
-        countId_productId_locationId: {
-          countId,
-          productId: itemId, // Assuming itemId passed is productId for simplicity, though the URL might need both location and product
-          locationId: '', // Wait, this needs locationId too
-        }
-      },
-      update: {},
-      create: { countId, productId: '', locationId: '', countedQty: 0, systemQty: 0 }
+  async countItem(countId: string, locationId: string, productId: string, countDto: CountItemDto, userId: string) {
+    const inventory = await this.prisma.inventory.findUnique({
+      where: { productId_locationId: { productId, locationId } }
     });
+    const systemQty = inventory ? inventory.quantity : 0;
+
+    const item = await this.prisma.cycleCountItem.findFirst({
+      where: { countId, productId, locationId }
+    });
+
+    if (item) {
+      return this.prisma.cycleCountItem.update({
+        where: { id: item.id },
+        data: {
+          countedQty: countDto.countedQty,
+          countedById: userId,
+          countedAt: new Date(),
+        }
+      });
+    } else {
+      return this.prisma.cycleCountItem.create({
+        data: {
+          countId,
+          productId,
+          locationId,
+          systemQty,
+          countedQty: countDto.countedQty,
+          countedById: userId,
+          countedAt: new Date(),
+        }
+      });
+    }
   }
 
   async postAdjustments(countId: string, userId: string) {
-    // We will do a full implementation
+    return this.prisma.$transaction(async (tx) => {
+      const cycleCount = await tx.cycleCount.findUnique({
+        where: { id: countId },
+        include: { items: true },
+      });
+
+      if (!cycleCount) throw new NotFoundException('Cycle count not found');
+      if (cycleCount.status !== 'draft') throw new BadRequestException('Cycle count is already completed');
+
+      for (const item of cycleCount.items) {
+        if (item.adjustmentPosted || item.countedQty === null) continue;
+
+        const diff = Number(item.countedQty) - Number(item.systemQty);
+        
+        if (diff !== 0) {
+          const inventory = await tx.inventory.upsert({
+            where: { productId_locationId: { productId: item.productId, locationId: item.locationId } },
+            update: { quantity: item.countedQty },
+            create: { productId: item.productId, locationId: item.locationId, quantity: item.countedQty, unitCost: 0 }
+          });
+
+          const movementType = diff > 0 ? MovementType.adjustment_in : MovementType.adjustment_out;
+          
+          const movement = await tx.stockMovement.create({
+            data: {
+              productId: item.productId,
+              locationId: item.locationId,
+              movementType,
+              quantity: diff,
+              balanceAfter: item.countedQty,
+              unitCost: inventory.unitCost,
+              idempotencyKey: `cc-${countId}-${item.id}`,
+              performedById: userId,
+              reason: 'Cycle Count Adjustment',
+            }
+          });
+
+          await tx.cycleCountItem.update({
+            where: { id: item.id },
+            data: { adjustmentPosted: true, stockMovementId: movement.id }
+          });
+        } else {
+          await tx.cycleCountItem.update({
+            where: { id: item.id },
+            data: { adjustmentPosted: true }
+          });
+        }
+      }
+
+      return tx.cycleCount.update({
+        where: { id: countId },
+        data: { status: 'completed' }
+      });
+    });
   }
 }

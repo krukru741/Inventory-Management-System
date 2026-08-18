@@ -1,9 +1,14 @@
 import { CreateSalesOrderDto } from './dto/create-sales-order.dto';
 import { ShipOrderDto } from './dto/ship-order.dto';
+import { ProcessReturnDto } from './dto/process-return.dto';
 import { PrismaService } from '../../prisma/prisma.service';
 export declare class SalesOrdersService {
     private prisma;
     constructor(prisma: PrismaService);
+    processReturn(dto: ProcessReturnDto, userId: string): Promise<{
+        success: boolean;
+        message: string;
+    }>;
     create(createDto: CreateSalesOrderDto, userId: string): Promise<{
         items: {
             description: string | null;

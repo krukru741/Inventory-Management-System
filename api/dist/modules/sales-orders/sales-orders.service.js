@@ -18,6 +18,43 @@ let SalesOrdersService = class SalesOrdersService {
     constructor(prisma) {
         this.prisma = prisma;
     }
+    async processReturn(dto, userId) {
+        return this.prisma.$transaction(async (tx) => {
+            const so = await tx.salesOrder.findUnique({
+                where: { id: dto.salesOrderId },
+                include: { items: true },
+            });
+            if (!so)
+                throw new common_1.NotFoundException('Sales order not found');
+            const soItem = so.items.find(i => i.productId === dto.productId);
+            if (!soItem)
+                throw new common_1.BadRequestException('Product not in sales order');
+            if (Number(soItem.shippedQty) < dto.returnQty) {
+                throw new common_1.BadRequestException('Cannot return more than was shipped');
+            }
+            const inventory = await tx.inventory.upsert({
+                where: { productId_locationId: { productId: dto.productId, locationId: dto.returnToLocationId } },
+                update: { quantity: { increment: dto.returnQty } },
+                create: { productId: dto.productId, locationId: dto.returnToLocationId, quantity: dto.returnQty, unitCost: 0 }
+            });
+            const balanceAfter = inventory.quantity + (inventory.id ? 0 : dto.returnQty);
+            await tx.stockMovement.create({
+                data: {
+                    productId: dto.productId,
+                    locationId: dto.returnToLocationId,
+                    movementType: client_1.MovementType.return_in,
+                    quantity: dto.returnQty,
+                    balanceAfter,
+                    unitCost: inventory.unitCost,
+                    soId: so.id,
+                    idempotencyKey: `return-${so.id}-${dto.productId}-${Date.now()}`,
+                    performedById: userId,
+                    reason: dto.reason || 'Customer Return',
+                }
+            });
+            return { success: true, message: 'Return processed and restocked successfully' };
+        });
+    }
     async create(createDto, userId) {
         const soNumber = `SO-${Date.now()}`;
         const subtotal = createDto.items.reduce((acc, item) => acc + (item.orderedQty * item.unitPrice), 0);

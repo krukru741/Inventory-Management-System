@@ -1,12 +1,57 @@
 import { Injectable, NotFoundException, BadRequestException } from '@nestjs/common';
 import { CreateSalesOrderDto } from './dto/create-sales-order.dto';
 import { ShipOrderDto } from './dto/ship-order.dto';
+import { ProcessReturnDto } from './dto/process-return.dto';
 import { PrismaService } from '../../prisma/prisma.service';
 import { MovementType, SoStatus } from '@prisma/client';
 
 @Injectable()
 export class SalesOrdersService {
   constructor(private prisma: PrismaService) {}
+
+  async processReturn(dto: ProcessReturnDto, userId: string) {
+    return this.prisma.$transaction(async (tx) => {
+      const so = await tx.salesOrder.findUnique({
+        where: { id: dto.salesOrderId },
+        include: { items: true },
+      });
+      if (!so) throw new NotFoundException('Sales order not found');
+
+      const soItem = so.items.find(i => i.productId === dto.productId);
+      if (!soItem) throw new BadRequestException('Product not in sales order');
+
+      if (Number(soItem.shippedQty) < dto.returnQty) {
+        throw new BadRequestException('Cannot return more than was shipped');
+      }
+
+      // Restock inventory
+      const inventory = await tx.inventory.upsert({
+        where: { productId_locationId: { productId: dto.productId, locationId: dto.returnToLocationId } },
+        update: { quantity: { increment: dto.returnQty } },
+        create: { productId: dto.productId, locationId: dto.returnToLocationId, quantity: dto.returnQty, unitCost: 0 }
+      });
+
+      // Post Movement
+      const balanceAfter = inventory.quantity + (inventory.id ? 0 : dto.returnQty);
+
+      await tx.stockMovement.create({
+        data: {
+          productId: dto.productId,
+          locationId: dto.returnToLocationId,
+          movementType: MovementType.return_in,
+          quantity: dto.returnQty,
+          balanceAfter,
+          unitCost: inventory.unitCost,
+          soId: so.id,
+          idempotencyKey: `return-${so.id}-${dto.productId}-${Date.now()}`,
+          performedById: userId,
+          reason: dto.reason || 'Customer Return',
+        }
+      });
+
+      return { success: true, message: 'Return processed and restocked successfully' };
+    });
+  }
 
   async create(createDto: CreateSalesOrderDto, userId: string) {
     const soNumber = `SO-${Date.now()}`;

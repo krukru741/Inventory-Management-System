@@ -1,9 +1,14 @@
 import { SalesOrdersService } from './sales-orders.service';
 import { CreateSalesOrderDto } from './dto/create-sales-order.dto';
 import { ShipOrderDto } from './dto/ship-order.dto';
+import { ProcessReturnDto } from './dto/process-return.dto';
 export declare class SalesOrdersController {
     private readonly salesOrdersService;
     constructor(salesOrdersService: SalesOrdersService);
+    processReturn(returnDto: ProcessReturnDto, req: any): Promise<{
+        success: boolean;
+        message: string;
+    }>;
     create(createSalesOrderDto: CreateSalesOrderDto, req: any): Promise<{
         items: {
             description: string | null;

@@ -2,6 +2,7 @@ import { Controller, Get, Post, Body, Param, Patch, UseGuards, Request } from '@
 import { SalesOrdersService } from './sales-orders.service';
 import { CreateSalesOrderDto } from './dto/create-sales-order.dto';
 import { ShipOrderDto } from './dto/ship-order.dto';
+import { ProcessReturnDto } from './dto/process-return.dto';
 import { ApiTags, ApiBearerAuth, ApiOperation } from '@nestjs/swagger';
 import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
 import { RolesGuard } from '../auth/guards/roles.guard';
@@ -14,6 +15,13 @@ import { UserRole } from '@prisma/client';
 @Controller('sales-orders')
 export class SalesOrdersController {
   constructor(private readonly salesOrdersService: SalesOrdersService) {}
+
+  @Post('returns')
+  @Roles(UserRole.admin, UserRole.manager, UserRole.staff)
+  @ApiOperation({ summary: 'Process a return for a sales order' })
+  processReturn(@Body() returnDto: ProcessReturnDto, @Request() req: any) {
+    return this.salesOrdersService.processReturn(returnDto, req.user.sub);
+  }
 
   @Post()
   @Roles(UserRole.admin, UserRole.manager, UserRole.staff)
