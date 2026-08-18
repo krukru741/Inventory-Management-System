@@ -62,6 +62,7 @@ const inventory_module_1 = require("./modules/inventory/inventory.module");
 const customers_module_1 = require("./modules/customers/customers.module");
 const purchase_orders_module_1 = require("./modules/purchase-orders/purchase-orders.module");
 const sales_orders_module_1 = require("./modules/sales-orders/sales-orders.module");
+const reports_module_1 = require("./modules/reports/reports.module");
 let AppModule = class AppModule {
 };
 exports.AppModule = AppModule;
@@ -102,6 +103,7 @@ exports.AppModule = AppModule = __decorate([
             customers_module_1.CustomersModule,
             purchase_orders_module_1.PurchaseOrdersModule,
             sales_orders_module_1.SalesOrdersModule,
+            reports_module_1.ReportsModule,
         ],
     })
 ], AppModule);
