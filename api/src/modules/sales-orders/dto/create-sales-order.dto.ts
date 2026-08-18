@@ -2,7 +2,7 @@ import { IsString, IsArray, IsOptional, IsNumber, ValidateNested, IsUUID } from 
 import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
 import { Type } from 'class-transformer';
 
-export class PurchaseOrderItemDto {
+export class SalesOrderItemDto {
   @ApiProperty()
   @IsUUID()
   productId: string;
@@ -25,7 +25,13 @@ export class PurchaseOrderItemDto {
   @ApiProperty()
   @IsNumber()
   @Type(() => Number)
-  unitCost: number;
+  unitPrice: number;
+
+  @ApiPropertyOptional()
+  @IsNumber()
+  @Type(() => Number)
+  @IsOptional()
+  discountPct?: number;
 
   @ApiPropertyOptional()
   @IsNumber()
@@ -39,10 +45,10 @@ export class PurchaseOrderItemDto {
   notes?: string;
 }
 
-export class CreatePurchaseOrderDto {
+export class CreateSalesOrderDto {
   @ApiProperty()
   @IsUUID()
-  supplierId: string;
+  customerId: string;
 
   @ApiProperty()
   @IsUUID()
@@ -51,12 +57,48 @@ export class CreatePurchaseOrderDto {
   @ApiPropertyOptional()
   @IsString()
   @IsOptional()
-  supplierReference?: string;
+  shipToName?: string;
+
+  @ApiPropertyOptional()
+  @IsString()
+  @IsOptional()
+  shipToLine1?: string;
+
+  @ApiPropertyOptional()
+  @IsString()
+  @IsOptional()
+  shipToCity?: string;
+
+  @ApiPropertyOptional()
+  @IsString()
+  @IsOptional()
+  shipToState?: string;
+
+  @ApiPropertyOptional()
+  @IsString()
+  @IsOptional()
+  shipToPostal?: string;
+
+  @ApiPropertyOptional()
+  @IsString()
+  @IsOptional()
+  shipToCountry?: string;
+
+  @ApiPropertyOptional()
+  @IsString()
+  @IsOptional()
+  customerPoRef?: string;
 
   @ApiPropertyOptional()
   @IsString()
   @IsOptional()
   notes?: string;
+
+  @ApiPropertyOptional()
+  @IsNumber()
+  @Type(() => Number)
+  @IsOptional()
+  discountAmount?: number;
 
   @ApiPropertyOptional()
   @IsNumber()
@@ -69,9 +111,9 @@ export class CreatePurchaseOrderDto {
   @IsOptional()
   currency?: string;
 
-  @ApiProperty({ type: [PurchaseOrderItemDto] })
+  @ApiProperty({ type: [SalesOrderItemDto] })
   @IsArray()
   @ValidateNested({ each: true })
-  @Type(() => PurchaseOrderItemDto)
-  items: PurchaseOrderItemDto[];
+  @Type(() => SalesOrderItemDto)
+  items: SalesOrderItemDto[];
 }

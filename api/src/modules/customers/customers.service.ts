@@ -1,26 +1,58 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, NotFoundException, ConflictException } from '@nestjs/common';
 import { CreateCustomerDto } from './dto/create-customer.dto';
 import { UpdateCustomerDto } from './dto/update-customer.dto';
+import { PrismaService } from '../../prisma/prisma.service';
 
 @Injectable()
 export class CustomersService {
-  create(createCustomerDto: CreateCustomerDto) {
-    return 'This action adds a new customer';
+  constructor(private prisma: PrismaService) {}
+
+  async create(createCustomerDto: CreateCustomerDto) {
+    const existing = await this.prisma.customer.findUnique({
+      where: { email: createCustomerDto.email },
+    });
+    if (existing) {
+      throw new ConflictException('Customer with this email already exists');
+    }
+    return this.prisma.customer.create({
+      data: createCustomerDto,
+    });
   }
 
   findAll() {
-    return `This action returns all customers`;
+    return this.prisma.customer.findMany({
+      orderBy: { name: 'asc' },
+    });
   }
 
-  findOne(id: number) {
-    return `This action returns a #${id} customer`;
+  async findOne(id: string) {
+    const customer = await this.prisma.customer.findUnique({
+      where: { id },
+    });
+    if (!customer) throw new NotFoundException('Customer not found');
+    return customer;
   }
 
-  update(id: number, updateCustomerDto: UpdateCustomerDto) {
-    return `This action updates a #${id} customer`;
+  async update(id: string, updateCustomerDto: UpdateCustomerDto) {
+    await this.findOne(id);
+    if (updateCustomerDto.email) {
+      const existing = await this.prisma.customer.findUnique({
+        where: { email: updateCustomerDto.email },
+      });
+      if (existing && existing.id !== id) {
+        throw new ConflictException('Email already in use by another customer');
+      }
+    }
+    return this.prisma.customer.update({
+      where: { id },
+      data: updateCustomerDto,
+    });
   }
 
-  remove(id: number) {
-    return `This action removes a #${id} customer`;
+  async remove(id: string) {
+    await this.findOne(id);
+    return this.prisma.customer.delete({
+      where: { id },
+    });
   }
 }
