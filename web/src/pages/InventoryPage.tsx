@@ -469,14 +469,14 @@ export default function InventoryPage() {
                                         Loading stock levels…
                                     </td>
                                 </tr>
-                            ) : summary?.data.length === 0 ? (
+                            ) : summary?.data?.length === 0 ? (
                                 <tr>
                                     <td colSpan={8} className="px-4 py-10 text-center text-[#A08A72]">
                                         No products match that search yet.
                                     </td>
                                 </tr>
                             ) : (
-                                summary?.data.map((row) => {
+                                summary?.data?.map((row) => {
                                     const isLow = Number(row.on_hand_qty) <= Number(row.reorder_point);
                                     const isOut = Number(row.on_hand_qty) === 0;
                                     return (
