@@ -10,6 +10,7 @@ import InventoryPage from './pages/InventoryPage';
 import ProductsPage from './pages/ProductsPage';
 import CategoriesPage from './pages/CategoriesPage';
 import TransfersPage from './pages/TransfersPage';
+import ReportsPage from './pages/ReportsPage';
 import PurchaseOrdersPage from './pages/PurchaseOrdersPage';
 import SalesOrdersPage from './pages/SalesOrdersPage';
 import SuppliersPage from './pages/SuppliersPage';
@@ -48,7 +49,7 @@ function AppRoutes() {
           <Route path="/suppliers" element={<SuppliersPage />} />
           <Route path="/customers" element={<CustomersPage />} />
           <Route path="/warehouses" element={<WarehousesPage />} />
-          <Route path="/reports" element={<div className="p-6">Reports (Coming Soon)</div>} />
+          <Route path="/reports" element={<ReportsPage />} />
         </Route>
       </Route>
     </Routes>
