@@ -1,4 +1,3 @@
-import React from 'react';
 import { useUiStore } from '@/store/uiStore';
 import { useAuth } from '@/contexts/AuthContext';
 import { Link, Outlet, useLocation } from 'react-router-dom';
@@ -22,9 +21,8 @@ export default function DashboardLayout() {
     <div className="flex h-screen w-full bg-cream overflow-hidden text-foreground">
       {/* Sidebar */}
       <aside
-        className={`${
-          isSidebarOpen ? 'w-64' : 'w-20'
-        } bg-primary text-primary-foreground transition-all duration-300 ease-in-out flex flex-col`}
+        className={`${isSidebarOpen ? 'w-64' : 'w-20'
+          } bg-primary text-primary-foreground transition-all duration-300 ease-in-out flex flex-col`}
       >
         <div className="h-16 flex items-center justify-center border-b border-primary-foreground/10 px-4">
           <Package className="w-8 h-8 text-butter-yellow" />
@@ -38,11 +36,10 @@ export default function DashboardLayout() {
               <Link
                 key={item.path}
                 to={item.path}
-                className={`flex items-center px-3 py-3 rounded-md transition-colors ${
-                  isActive
+                className={`flex items-center px-3 py-3 rounded-md transition-colors ${isActive
                     ? 'bg-primary-foreground/10 text-butter-yellow font-medium'
                     : 'text-primary-foreground/70 hover:bg-primary-foreground/5 hover:text-primary-foreground'
-                }`}
+                  }`}
                 title={!isSidebarOpen ? item.name : undefined}
               >
                 <item.icon className={`w-5 h-5 ${isSidebarOpen ? 'mr-3' : 'mx-auto'}`} />
