@@ -116,6 +116,7 @@ export default function ShipOrderModal({ soId, open, onOpenChange }: Props) {
                 soiId: i.id,
                 locationId: locationIds[i.id],
                 shippedQty: Number(shipQtys[i.id]),
+                productId: i.productId,
             }));
 
         if (shipItems.length === 0) {
@@ -127,7 +128,16 @@ export default function ShipOrderModal({ soId, open, onOpenChange }: Props) {
             return;
         }
 
-        shipMutation.mutate({ carrier, trackingNumber, notes: shipNotes, items: shipItems });
+        // Client-side stock check before hitting the API
+        for (const s of shipItems) {
+            const avail = stockMap.get(`${s.productId}__${s.locationId}`) ?? 0;
+            if (s.shippedQty > avail) {
+                setError(`Insufficient stock — only ${avail} unit(s) available at the selected location. Please pick a location that has enough stock.`);
+                return;
+            }
+        }
+
+        shipMutation.mutate({ carrier, trackingNumber, notes: shipNotes, items: shipItems.map(({ soiId, locationId, shippedQty }) => ({ soiId, locationId, shippedQty })) });
     };
 
     const canConfirm = so?.status === 'draft';
@@ -223,7 +233,7 @@ export default function ShipOrderModal({ soId, open, onOpenChange }: Props) {
                                                                     <select
                                                                         className={`flex h-9 w-full min-w-[140px] rounded-md border px-2 py-1 text-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#B8863B] ${
                                                                             locationIds[item.id] &&
-                                                                            stockMap.get(`${item.productId}__${locationIds[item.id]}`) === 0
+                                                                            (stockMap.get(`${item.productId}__${locationIds[item.id]}`) ?? 0) === 0
                                                                                 ? 'border-red-400 bg-red-50'
                                                                                 : 'border-[#D9CBB0] bg-white'
                                                                         }`}
@@ -235,25 +245,26 @@ export default function ShipOrderModal({ soId, open, onOpenChange }: Props) {
                                                                     >
                                                                         <option value="" disabled>Select bin...</option>
                                                                         {(locations || []).map((l: any) => {
-                                                                            const avail = stockMap.get(`${item.productId}__${l.id}`);
-                                                                            const hasStock = avail !== undefined && avail > 0;
+                                                                            // treat undefined as 0 (no inventory record = no stock)
+                                                                            const avail = stockMap.get(`${item.productId}__${l.id}`) ?? 0;
+                                                                            const hasStock = avail > 0;
                                                                             return (
                                                                                 <option
                                                                                     key={l.id}
                                                                                     value={l.id}
                                                                                     style={{ color: hasStock ? '#3D2621' : '#A08A72' }}
                                                                                 >
-                                                                                    {l.code}{avail !== undefined ? ` — ${avail} avail` : ''}
+                                                                                    {l.code} — {avail} avail
                                                                                 </option>
                                                                             );
                                                                         })}
                                                                     </select>
                                                                     {locationIds[item.id] &&
-                                                                        stockMap.get(`${item.productId}__${locationIds[item.id]}`) === 0 && (
-                                                                        <p className="text-xs text-red-600">⚠ No stock at this location</p>
+                                                                        (stockMap.get(`${item.productId}__${locationIds[item.id]}`) ?? 0) === 0 && (
+                                                                        <p className="text-xs text-red-600">⚠ No stock at this location — choose another bin</p>
                                                                     )}
                                                                     {locationIds[item.id] &&
-                                                                        (stockMap.get(`${item.productId}__${locationIds[item.id]}`) ?? -1) > 0 &&
+                                                                        (stockMap.get(`${item.productId}__${locationIds[item.id]}`) ?? 0) > 0 &&
                                                                         Number(shipQtys[item.id] ?? 0) > (stockMap.get(`${item.productId}__${locationIds[item.id]}`) ?? 0) && (
                                                                         <p className="text-xs text-red-600">⚠ Only {stockMap.get(`${item.productId}__${locationIds[item.id]}`)} available</p>
                                                                     )}
