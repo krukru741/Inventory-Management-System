@@ -68,6 +68,7 @@ function useStockSummary(page: number, limit: number, search: string) {
             const { data } = await api.get('/inventory', {
                 params: { page, limit, search: search || undefined },
             });
+            console.log("DEBUG inventory", data);
             return data;
         },
         placeholderData: (prev) => prev,

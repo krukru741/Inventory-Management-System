@@ -16,6 +16,7 @@ export declare class InventoryService {
     getLowStockAlerts(): Promise<unknown>;
     adjustStock(adjustDto: AdjustInventoryDto, userId?: string): Promise<{
         id: string;
+        serialNumber: string | null;
         productId: string;
         unitCost: Prisma.Decimal;
         locationId: string;
@@ -25,7 +26,6 @@ export declare class InventoryService {
         balanceAfter: Prisma.Decimal;
         batchNumber: string | null;
         lotNumber: string | null;
-        serialNumber: string | null;
         expiryDate: Date | null;
         poId: string | null;
         soId: string | null;

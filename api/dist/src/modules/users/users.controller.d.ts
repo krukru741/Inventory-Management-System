@@ -8,8 +8,8 @@ export declare class UsersController {
     findAll(paginationDto: PaginationDto): Promise<{
         data: {
             id: string;
-            name: string;
             email: string;
+            name: string;
             role: import("@prisma/client").$Enums.UserRole;
             isActive: boolean;
             createdAt: Date;
@@ -22,8 +22,8 @@ export declare class UsersController {
     }>;
     findOne(id: string, user: any): Promise<{
         id: string;
-        name: string;
         email: string;
+        name: string;
         role: import("@prisma/client").$Enums.UserRole;
         phone: string | null;
         avatarUrl: string | null;
@@ -33,8 +33,8 @@ export declare class UsersController {
     }>;
     update(id: string, updateUserDto: UpdateUserDto, user: any): Promise<{
         id: string;
-        name: string;
         email: string;
+        name: string;
         role: import("@prisma/client").$Enums.UserRole;
         isActive: boolean;
     }>;

@@ -9,7 +9,12 @@ export declare class WarehousesService {
     constructor(prisma: PrismaService);
     create(createWarehouseDto: CreateWarehouseDto): Promise<{
         id: string;
+        email: string | null;
         name: string;
+        phone: string | null;
+        isActive: boolean;
+        createdAt: Date;
+        updatedAt: Date;
         code: string;
         addressLine1: string | null;
         addressLine2: string | null;
@@ -17,17 +22,17 @@ export declare class WarehousesService {
         state: string | null;
         postalCode: string | null;
         country: string | null;
-        phone: string | null;
-        email: string | null;
-        isActive: boolean;
-        createdAt: Date;
-        updatedAt: Date;
         managerId: string | null;
     }>;
     findAll(paginationDto: PaginationDto): Promise<{
         data: {
             id: string;
+            email: string | null;
             name: string;
+            phone: string | null;
+            isActive: boolean;
+            createdAt: Date;
+            updatedAt: Date;
             code: string;
             addressLine1: string | null;
             addressLine2: string | null;
@@ -35,11 +40,6 @@ export declare class WarehousesService {
             state: string | null;
             postalCode: string | null;
             country: string | null;
-            phone: string | null;
-            email: string | null;
-            isActive: boolean;
-            createdAt: Date;
-            updatedAt: Date;
             managerId: string | null;
         }[];
         meta: {
@@ -55,14 +55,14 @@ export declare class WarehousesService {
     } & {
         id: string;
         name: string | null;
-        code: string;
         isActive: boolean;
         createdAt: Date;
         updatedAt: Date;
-        warehouseId: string;
-        parentId: string | null;
+        code: string;
         locationType: string;
         capacity: import("@prisma/client-runtime-utils").Decimal | null;
+        parentId: string | null;
+        warehouseId: string;
     })[]>;
     findOne(id: string): Promise<{
         manager: {
@@ -71,7 +71,12 @@ export declare class WarehousesService {
         } | null;
     } & {
         id: string;
+        email: string | null;
         name: string;
+        phone: string | null;
+        isActive: boolean;
+        createdAt: Date;
+        updatedAt: Date;
         code: string;
         addressLine1: string | null;
         addressLine2: string | null;
@@ -79,16 +84,16 @@ export declare class WarehousesService {
         state: string | null;
         postalCode: string | null;
         country: string | null;
-        phone: string | null;
-        email: string | null;
-        isActive: boolean;
-        createdAt: Date;
-        updatedAt: Date;
         managerId: string | null;
     }>;
     update(id: string, updateWarehouseDto: UpdateWarehouseDto): Promise<{
         id: string;
+        email: string | null;
         name: string;
+        phone: string | null;
+        isActive: boolean;
+        createdAt: Date;
+        updatedAt: Date;
         code: string;
         addressLine1: string | null;
         addressLine2: string | null;
@@ -96,16 +101,16 @@ export declare class WarehousesService {
         state: string | null;
         postalCode: string | null;
         country: string | null;
-        phone: string | null;
-        email: string | null;
-        isActive: boolean;
-        createdAt: Date;
-        updatedAt: Date;
         managerId: string | null;
     }>;
     remove(id: string): Promise<{
         id: string;
+        email: string | null;
         name: string;
+        phone: string | null;
+        isActive: boolean;
+        createdAt: Date;
+        updatedAt: Date;
         code: string;
         addressLine1: string | null;
         addressLine2: string | null;
@@ -113,47 +118,42 @@ export declare class WarehousesService {
         state: string | null;
         postalCode: string | null;
         country: string | null;
-        phone: string | null;
-        email: string | null;
-        isActive: boolean;
-        createdAt: Date;
-        updatedAt: Date;
         managerId: string | null;
     }>;
     addLocation(warehouseId: string, createLocationDto: CreateLocationDto): Promise<{
         id: string;
         name: string | null;
-        code: string;
         isActive: boolean;
         createdAt: Date;
         updatedAt: Date;
-        warehouseId: string;
-        parentId: string | null;
+        code: string;
         locationType: string;
         capacity: import("@prisma/client-runtime-utils").Decimal | null;
+        parentId: string | null;
+        warehouseId: string;
     }>;
     findLocations(warehouseId: string): Promise<{
         id: string;
         name: string | null;
-        code: string;
         isActive: boolean;
         createdAt: Date;
         updatedAt: Date;
-        warehouseId: string;
-        parentId: string | null;
+        code: string;
         locationType: string;
         capacity: import("@prisma/client-runtime-utils").Decimal | null;
+        parentId: string | null;
+        warehouseId: string;
     }[]>;
     updateLocation(warehouseId: string, locationId: string, updateLocationDto: UpdateLocationDto): Promise<{
         id: string;
         name: string | null;
-        code: string;
         isActive: boolean;
         createdAt: Date;
         updatedAt: Date;
-        warehouseId: string;
-        parentId: string | null;
+        code: string;
         locationType: string;
         capacity: import("@prisma/client-runtime-utils").Decimal | null;
+        parentId: string | null;
+        warehouseId: string;
     }>;
 }
