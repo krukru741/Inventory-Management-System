@@ -17,7 +17,7 @@ import {
 } from '@/components/ui/dialog';
 
 import { api } from '@/lib/api';
-import CreateProductModal from '@/components/CreateProductModal';
+import ProductFormModal from '@/components/ProductFormModal';
 
 // -----------------------------------------------------------------------------
 // Types — mirror the v_stock_summary view columns returned by GET /inventory
@@ -604,7 +604,7 @@ export default function InventoryPage() {
                 defaultLocationId={rowContext.locationId}
             />
 
-            <CreateProductModal
+            <ProductFormModal
                 open={createProductOpen}
                 onOpenChange={setCreateProductOpen}
             />

@@ -13,7 +13,7 @@ import {
     DialogTitle,
     DialogFooter,
 } from '@/components/ui/dialog';
-import CreateProductModal from '@/components/CreateProductModal';
+import ProductFormModal from '@/components/ProductFormModal';
 
 interface SoItemRow {
     id: string;
@@ -434,7 +434,7 @@ export default function CreateSalesOrderModal({ open, onOpenChange }: Props) {
                 </DialogContent>
             </Dialog>
 
-            <CreateProductModal
+            <ProductFormModal
                 open={isCreateProductOpen}
                 onOpenChange={setIsCreateProductOpen}
                 onSuccessCb={handleNewProductSuccess}

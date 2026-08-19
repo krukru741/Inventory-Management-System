@@ -13,7 +13,7 @@ import {
     DialogTitle,
     DialogFooter,
 } from '@/components/ui/dialog';
-import CreateProductModal from '@/components/CreateProductModal';
+import ProductFormModal from '@/components/ProductFormModal';
 
 interface ItemRow {
     id: string; // temp id for ui
@@ -352,7 +352,7 @@ export default function CreatePurchaseOrderModal({ open, onOpenChange }: CreateP
             </DialogContent>
         </Dialog>
 
-        <CreateProductModal 
+        <ProductFormModal
             open={isCreateProductOpen}
             onOpenChange={setIsCreateProductOpen}
             onSuccessCb={handleNewProductSuccess}
