@@ -1,7 +1,7 @@
 import { useUiStore } from '@/store/uiStore';
 import { useAuth } from '@/contexts/AuthContext';
 import { Link, Outlet, useLocation } from 'react-router-dom';
-import { Package, LayoutDashboard, ShoppingCart, ShoppingBag, Truck, Users, BarChart3, LogOut, Menu, UserCircle } from 'lucide-react';
+import { Package, LayoutDashboard, ShoppingCart, ShoppingBag, Truck, Users, Building2, BarChart3, LogOut, Menu, UserCircle } from 'lucide-react';
 
 export default function DashboardLayout() {
   const { isSidebarOpen, toggleSidebar } = useUiStore();
@@ -11,6 +11,7 @@ export default function DashboardLayout() {
   const navItems = [
     { name: 'Dashboard', path: '/dashboard', icon: LayoutDashboard },
     { name: 'Inventory', path: '/inventory', icon: Package },
+    { name: 'Warehouses', path: '/warehouses', icon: Building2 },
     { name: 'Purchasing', path: '/purchasing', icon: ShoppingCart },
     { name: 'Sales Orders', path: '/sales', icon: ShoppingBag },
     { name: 'Customers', path: '/customers', icon: Users },
