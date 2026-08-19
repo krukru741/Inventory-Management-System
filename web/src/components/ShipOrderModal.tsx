@@ -231,12 +231,12 @@ export default function ShipOrderModal({ soId, open, onOpenChange }: Props) {
                                                             {remaining > 0 ? (
                                                                 <div className="space-y-1">
                                                                     <select
-                                                                        className={`flex h-9 w-full min-w-[140px] rounded-md border px-2 py-1 text-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#B8863B] ${
-                                                                            locationIds[item.id] &&
-                                                                            (stockMap.get(`${item.productId}__${locationIds[item.id]}`) ?? 0) === 0
-                                                                                ? 'border-red-400 bg-red-50'
-                                                                                : 'border-[#D9CBB0] bg-white'
-                                                                        }`}
+                                                                        className={
+                                                                            "flex h-9 w-full min-w-[140px] rounded-md border px-2 py-1 text-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#B8863B] " +
+                                                                            (locationIds[item.id] && (stockMap.get(item.productId + "__" + locationIds[item.id]) ?? 0) === 0
+                                                                                ? "border-red-400 bg-red-50"
+                                                                                : "border-[#D9CBB0] bg-white")
+                                                                        }
                                                                         value={locationIds[item.id] ?? ''}
                                                                         onChange={e => setLocationIds(prev => ({
                                                                             ...prev,
