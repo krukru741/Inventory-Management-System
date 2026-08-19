@@ -17,6 +17,7 @@ import {
 } from '@/components/ui/dialog';
 
 import { api } from '@/lib/api';
+import CreateProductModal from '@/components/CreateProductModal';
 
 // -----------------------------------------------------------------------------
 // Types — mirror the v_stock_summary view columns returned by GET /inventory
@@ -360,6 +361,7 @@ export default function InventoryPage() {
     const [page, setPage] = useState(1);
     const [search, setSearch] = useState('');
     const [dialogOpen, setDialogOpen] = useState(false);
+    const [createProductOpen, setCreateProductOpen] = useState(false);
     const [rowContext, setRowContext] = useState<{ productId?: string; locationId?: string }>({});
     const limit = 20;
 
@@ -385,16 +387,26 @@ export default function InventoryPage() {
                     <h1 className="text-2xl font-semibold text-[#3D2621]">Inventory</h1>
                     <p className="text-sm text-[#8B6355]">On-hand stock across every warehouse and bin.</p>
                 </div>
-                <Button
-                    onClick={() => {
-                        setRowContext({});
-                        setDialogOpen(true);
-                    }}
-                    className="gap-2 bg-[#6B4A3E] text-[#F7F2E7] hover:bg-[#5A3D33]"
-                >
-                    <PackagePlus className="h-4 w-4" />
-                    Adjust stock
-                </Button>
+                <div className="flex gap-2">
+                    <Button
+                        onClick={() => setCreateProductOpen(true)}
+                        variant="outline"
+                        className="gap-2 border-[#D9CBB0] text-[#5C4033]"
+                    >
+                        <PackagePlus className="h-4 w-4" />
+                        New Product
+                    </Button>
+                    <Button
+                        onClick={() => {
+                            setRowContext({});
+                            setDialogOpen(true);
+                        }}
+                        className="gap-2 bg-[#6B4A3E] text-[#F7F2E7] hover:bg-[#5A3D33]"
+                    >
+                        <PackagePlus className="h-4 w-4" />
+                        Adjust stock
+                    </Button>
+                </div>
             </div>
 
             {/* Stat cards */}
@@ -591,6 +603,11 @@ export default function InventoryPage() {
                 onOpenChange={setDialogOpen}
                 defaultProductId={rowContext.productId}
                 defaultLocationId={rowContext.locationId}
+            />
+
+            <CreateProductModal
+                open={createProductOpen}
+                onOpenChange={setCreateProductOpen}
             />
         </div>
     );

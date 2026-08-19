@@ -22,7 +22,7 @@ SELECT
     COALESCE(SUM(i.quantity),      0)                       AS on_hand_qty,
     COALESCE(SUM(i.reserved_qty),  0)                       AS reserved_qty,
     COALESCE(SUM(i.quantity) - SUM(i.reserved_qty), 0)     AS available_qty,
-    COALESCE(SUM(i.quantity * i.unit_cost), 0)              AS stock_value
+    COALESCE(SUM(i.quantity * COALESCE(NULLIF(i.unit_cost, 0), p.cost_price, 0)), 0) AS stock_value
 FROM products p
 LEFT JOIN categories        c ON c.id = p.category_id
 LEFT JOIN inventory         i ON i.product_id = p.id
