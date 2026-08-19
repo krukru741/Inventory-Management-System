@@ -9,6 +9,7 @@ import LoginPage from './pages/LoginPage';
 import DashboardPage from './pages/DashboardPage';
 import InventoryPage from './pages/InventoryPage';
 import PurchaseOrdersPage from './pages/PurchaseOrdersPage';
+import SalesOrdersPage from './pages/SalesOrdersPage';
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -35,6 +36,7 @@ function AppRoutes() {
           <Route path="/dashboard" element={<DashboardPage />} />
           <Route path="/inventory" element={<InventoryPage />} />
           <Route path="/purchasing" element={<PurchaseOrdersPage />} />
+          <Route path="/sales" element={<SalesOrdersPage />} />
           <Route path="/reports" element={<div className="p-6">Reports (Coming Soon)</div>} />
         </Route>
       </Route>

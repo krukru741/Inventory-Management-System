@@ -230,7 +230,7 @@ export class SalesOrdersService {
 
   findAll() {
     return this.prisma.salesOrder.findMany({
-      include: { customer: true, items: true },
+      include: { customer: true, warehouse: true, items: { include: { product: true } } },
       orderBy: { createdAt: 'desc' },
     });
   }
@@ -238,7 +238,7 @@ export class SalesOrdersService {
   async findOne(id: string) {
     const so = await this.prisma.salesOrder.findUnique({
       where: { id },
-      include: { customer: true, items: true, shipments: true },
+      include: { customer: true, warehouse: true, items: { include: { product: true } }, shipments: true },
     });
     if (!so) throw new NotFoundException('Sales order not found');
     return so;
