@@ -57,11 +57,11 @@ export default function SuppliersPage() {
         queryKey: ['suppliers'],
         queryFn: async () => {
             const { data } = await api.get('/suppliers', { params: { limit: 200 } });
-            return data;
+            return Array.isArray(data?.data) ? data.data : (Array.isArray(data) ? data : []);
         },
     });
 
-    const suppliers: Supplier[] = (res?.data ?? res ?? []);
+    const suppliers: Supplier[] = res ?? [];
 
     const { data: supplierProducts, isLoading: loadingProducts } = useQuery({
         queryKey: ['supplier-products', viewSupplier?.id],

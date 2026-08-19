@@ -57,7 +57,7 @@ export default function SalesOrdersPage() {
         queryKey: ['sales-orders'],
         queryFn: async () => {
             const { data } = await api.get('/sales-orders');
-            return data.data ?? data;
+            return Array.isArray(data?.data) ? data.data : (Array.isArray(data) ? data : []);
         },
     });
 

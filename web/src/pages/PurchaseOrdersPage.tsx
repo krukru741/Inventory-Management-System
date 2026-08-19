@@ -31,7 +31,7 @@ interface PO {
 
 const fetchPurchaseOrders = async (): Promise<PO[]> => {
     const { data } = await api.get('/purchase-orders');
-    return data.data ?? data;
+    return Array.isArray(data?.data) ? data.data : (Array.isArray(data) ? data : []);
 };
 
 const currencyFormat = new Intl.NumberFormat('en-US', {

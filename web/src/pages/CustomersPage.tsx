@@ -35,11 +35,11 @@ export default function CustomersPage() {
         queryKey: ['customers'],
         queryFn: async () => {
             const { data } = await api.get('/customers', { params: { limit: 200 } });
-            return data;
+            return Array.isArray(data?.data) ? data.data : (Array.isArray(data) ? data : []);
         },
     });
 
-    const customers: Customer[] = (res?.data ?? res ?? []);
+    const customers: Customer[] = res ?? [];
 
     const deactivateMutation = useMutation({
         mutationFn: async (id: string) => api.delete(`/customers/${id}`),
