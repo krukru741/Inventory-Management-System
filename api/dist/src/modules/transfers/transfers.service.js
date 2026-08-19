@@ -147,6 +147,17 @@ let TransfersService = class TransfersService {
             });
         });
     }
+    async findAll() {
+        return this.prisma.stockTransfer.findMany({
+            include: {
+                fromLocation: { include: { warehouse: true } },
+                toLocation: { include: { warehouse: true } },
+                items: true,
+                createdBy: true,
+            },
+            orderBy: { transferDate: 'desc' },
+        });
+    }
 };
 exports.TransfersService = TransfersService;
 exports.TransfersService = TransfersService = __decorate([

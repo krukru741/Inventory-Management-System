@@ -1,4 +1,4 @@
-import { Controller, Post, Param, Body, UseGuards, Request } from '@nestjs/common';
+import { Controller, Post, Get, Param, Body, UseGuards, Request } from '@nestjs/common';
 import { TransfersService } from './transfers.service';
 import { CreateTransferDto } from './dto/create-transfer.dto';
 import { ApiTags, ApiBearerAuth, ApiOperation } from '@nestjs/swagger';
@@ -19,6 +19,13 @@ export class TransfersController {
   @ApiOperation({ summary: 'Create a stock transfer' })
   create(@Body() createDto: CreateTransferDto, @Request() req: any) {
     return this.transfersService.create(createDto, req.user.sub);
+  }
+
+  @Get()
+  @Roles(UserRole.admin, UserRole.manager, UserRole.staff)
+  @ApiOperation({ summary: 'Get all stock transfers' })
+  findAll() {
+    return this.transfersService.findAll();
   }
 
   @Post(':id/dispatch')

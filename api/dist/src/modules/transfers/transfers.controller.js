@@ -29,6 +29,9 @@ let TransfersController = class TransfersController {
     create(createDto, req) {
         return this.transfersService.create(createDto, req.user.sub);
     }
+    findAll() {
+        return this.transfersService.findAll();
+    }
     dispatch(id, req) {
         return this.transfersService.dispatch(id, req.user.sub);
     }
@@ -47,6 +50,14 @@ __decorate([
     __metadata("design:paramtypes", [create_transfer_dto_1.CreateTransferDto, Object]),
     __metadata("design:returntype", void 0)
 ], TransfersController.prototype, "create", null);
+__decorate([
+    (0, common_1.Get)(),
+    (0, roles_decorator_1.Roles)(client_1.UserRole.admin, client_1.UserRole.manager, client_1.UserRole.staff),
+    (0, swagger_1.ApiOperation)({ summary: 'Get all stock transfers' }),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", []),
+    __metadata("design:returntype", void 0)
+], TransfersController.prototype, "findAll", null);
 __decorate([
     (0, common_1.Post)(':id/dispatch'),
     (0, roles_decorator_1.Roles)(client_1.UserRole.admin, client_1.UserRole.manager, client_1.UserRole.staff),

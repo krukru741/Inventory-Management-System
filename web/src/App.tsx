@@ -8,6 +8,8 @@ import LoginPage from './pages/LoginPage';
 import DashboardPage from './pages/DashboardPage';
 import InventoryPage from './pages/InventoryPage';
 import ProductsPage from './pages/ProductsPage';
+import CategoriesPage from './pages/CategoriesPage';
+import TransfersPage from './pages/TransfersPage';
 import PurchaseOrdersPage from './pages/PurchaseOrdersPage';
 import SalesOrdersPage from './pages/SalesOrdersPage';
 import SuppliersPage from './pages/SuppliersPage';
@@ -39,6 +41,8 @@ function AppRoutes() {
           <Route path="/dashboard" element={<DashboardPage />} />
           <Route path="/inventory" element={<InventoryPage />} />
           <Route path="/products" element={<ProductsPage />} />
+          <Route path="/categories" element={<CategoriesPage />} />
+          <Route path="/transfers" element={<TransfersPage />} />
           <Route path="/purchasing" element={<PurchaseOrdersPage />} />
           <Route path="/sales" element={<SalesOrdersPage />} />
           <Route path="/suppliers" element={<SuppliersPage />} />

@@ -151,4 +151,16 @@ export class TransfersService {
       });
     });
   }
+
+  async findAll() {
+    return this.prisma.stockTransfer.findMany({
+      include: {
+        fromLocation: { include: { warehouse: true } },
+        toLocation: { include: { warehouse: true } },
+        items: true,
+        createdBy: true,
+      },
+      orderBy: { transferDate: 'desc' },
+    });
+  }
 }
