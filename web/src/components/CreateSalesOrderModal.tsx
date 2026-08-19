@@ -22,8 +22,8 @@ interface SoItemRow {
     isDropdownOpen: boolean;
     orderedQty: number;
     unitPrice: number;
-    discountPct: number;
-    taxRate: number;
+    discountPct: number; // stored as whole number e.g. 5 = 5%, sent as 0.05 to API
+    taxRate: number;     // stored as whole number e.g. 8 = 8%, sent as 0.08 to API
 }
 
 const currencyFormat = new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD' });
@@ -144,11 +144,11 @@ export default function CreateSalesOrderModal({ open, onOpenChange }: Props) {
     const lineTotal = (item: SoItemRow) => {
         const base = item.orderedQty * item.unitPrice;
         const afterDiscount = base * (1 - item.discountPct / 100);
-        return afterDiscount * (1 + item.taxRate);
+        return afterDiscount * (1 + item.taxRate / 100);
     };
 
     const subtotal = items.reduce((acc, i) => acc + i.orderedQty * i.unitPrice * (1 - i.discountPct / 100), 0);
-    const taxTotal = items.reduce((acc, i) => acc + i.orderedQty * i.unitPrice * (1 - i.discountPct / 100) * i.taxRate, 0);
+    const taxTotal = items.reduce((acc, i) => acc + i.orderedQty * i.unitPrice * (1 - i.discountPct / 100) * (i.taxRate / 100), 0);
     const grandTotal = subtotal + taxTotal + shippingCost;
 
     const handleSubmit = (e: React.FormEvent) => {
@@ -173,8 +173,8 @@ export default function CreateSalesOrderModal({ open, onOpenChange }: Props) {
                 productId: i.productId,
                 orderedQty: Number(i.orderedQty),
                 unitPrice: Number(i.unitPrice),
-                discountPct: Number(i.discountPct) || 0,
-                taxRate: Number(i.taxRate) || 0,
+                discountPct: Number(i.discountPct) / 100,   // convert % → decimal (5 → 0.05)
+                taxRate: Number(i.taxRate) / 100,            // convert % → decimal (8 → 0.08)
             })),
         });
     };
@@ -352,14 +352,15 @@ export default function CreateSalesOrderModal({ open, onOpenChange }: Props) {
 
                                         <div className="w-20 space-y-1.5 shrink-0">
                                             <Label className="text-[#8B6355]">Disc %</Label>
-                                            <Input type="number" min="0" max="100" step="0.1" value={item.discountPct}
+                                            <Input type="number" min="0" max="100" step="0.1" placeholder="0"
+                                                value={item.discountPct}
                                                 onChange={e => handleItemChange(item.id, 'discountPct', e.target.value)}
                                                 className="border-[#D9CBB0]" />
                                         </div>
 
                                         <div className="w-20 space-y-1.5 shrink-0">
-                                            <Label className="text-[#8B6355]">Tax Rate</Label>
-                                            <Input type="number" min="0" max="1" step="0.01" placeholder="0.08"
+                                            <Label className="text-[#8B6355]">Tax %</Label>
+                                            <Input type="number" min="0" max="100" step="0.1" placeholder="0"
                                                 value={item.taxRate}
                                                 onChange={e => handleItemChange(item.id, 'taxRate', e.target.value)}
                                                 className="border-[#D9CBB0]" />

@@ -66,6 +66,22 @@ export default function ShipOrderModal({ soId, open, onOpenChange }: Props) {
         enabled: open && !!so?.warehouseId,
     });
 
+    // Fetch stock levels so we can show available qty per location
+    const { data: stockData } = useQuery({
+        queryKey: ['inventory', 'for-so', so?.warehouseId],
+        queryFn: async () => {
+            const { data } = await api.get('/inventory', { params: { limit: 500 } });
+            return (data.data ?? data) as any[];
+        },
+        enabled: open && !!so?.warehouseId,
+    });
+
+    // Build lookup: productId+locationId → available_qty
+    const stockMap = new Map<string, number>();
+    (stockData ?? []).forEach((row: any) => {
+        stockMap.set(`${row.product_id}__${row.location_id}`, Number(row.available_qty ?? 0));
+    });
+
     const confirmMutation = useMutation({
         mutationFn: async () => {
             const { data } = await api.patch(`/sales-orders/${soId}/confirm`);
@@ -162,7 +178,7 @@ export default function ShipOrderModal({ soId, open, onOpenChange }: Props) {
                                             <th className="px-4 py-2 text-right text-[#5C4033] font-semibold">Shipped</th>
                                             <th className="px-4 py-2 text-right text-[#5C4033] font-semibold">Remaining</th>
                                             {canShip && <th className="px-4 py-2 text-right text-[#5C4033] font-semibold">Ship Qty</th>}
-                                            {canShip && <th className="px-4 py-2 text-left text-[#5C4033] font-semibold">Location</th>}
+                                            {canShip && <th className="px-4 py-2 text-left text-[#5C4033] font-semibold">Location (Avail. Stock)</th>}
                                         </tr>
                                     </thead>
                                     <tbody>
@@ -203,19 +219,45 @@ export default function ShipOrderModal({ soId, open, onOpenChange }: Props) {
                                                     {canShip && (
                                                         <td className="px-4 py-3">
                                                             {remaining > 0 ? (
-                                                                <select
-                                                                    className="flex h-9 w-full rounded-md border border-[#D9CBB0] bg-white px-2 py-1 text-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#B8863B]"
-                                                                    value={locationIds[item.id] ?? ''}
-                                                                    onChange={e => setLocationIds(prev => ({
-                                                                        ...prev,
-                                                                        [item.id]: e.target.value,
-                                                                    }))}
-                                                                >
-                                                                    <option value="" disabled>Select bin...</option>
-                                                                    {(locations || []).map((l: any) => (
-                                                                        <option key={l.id} value={l.id}>{l.code}</option>
-                                                                    ))}
-                                                                </select>
+                                                                <div className="space-y-1">
+                                                                    <select
+                                                                        className={`flex h-9 w-full min-w-[140px] rounded-md border px-2 py-1 text-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#B8863B] ${
+                                                                            locationIds[item.id] &&
+                                                                            stockMap.get(`${item.productId}__${locationIds[item.id]}`) === 0
+                                                                                ? 'border-red-400 bg-red-50'
+                                                                                : 'border-[#D9CBB0] bg-white'
+                                                                        }`}
+                                                                        value={locationIds[item.id] ?? ''}
+                                                                        onChange={e => setLocationIds(prev => ({
+                                                                            ...prev,
+                                                                            [item.id]: e.target.value,
+                                                                        }))}
+                                                                    >
+                                                                        <option value="" disabled>Select bin...</option>
+                                                                        {(locations || []).map((l: any) => {
+                                                                            const avail = stockMap.get(`${item.productId}__${l.id}`);
+                                                                            const hasStock = avail !== undefined && avail > 0;
+                                                                            return (
+                                                                                <option
+                                                                                    key={l.id}
+                                                                                    value={l.id}
+                                                                                    style={{ color: hasStock ? '#3D2621' : '#A08A72' }}
+                                                                                >
+                                                                                    {l.code}{avail !== undefined ? ` — ${avail} avail` : ''}
+                                                                                </option>
+                                                                            );
+                                                                        })}
+                                                                    </select>
+                                                                    {locationIds[item.id] &&
+                                                                        stockMap.get(`${item.productId}__${locationIds[item.id]}`) === 0 && (
+                                                                        <p className="text-xs text-red-600">⚠ No stock at this location</p>
+                                                                    )}
+                                                                    {locationIds[item.id] &&
+                                                                        (stockMap.get(`${item.productId}__${locationIds[item.id]}`) ?? -1) > 0 &&
+                                                                        Number(shipQtys[item.id] ?? 0) > (stockMap.get(`${item.productId}__${locationIds[item.id]}`) ?? 0) && (
+                                                                        <p className="text-xs text-red-600">⚠ Only {stockMap.get(`${item.productId}__${locationIds[item.id]}`)} available</p>
+                                                                    )}
+                                                                </div>
                                                             ) : '—'}
                                                         </td>
                                                     )}
