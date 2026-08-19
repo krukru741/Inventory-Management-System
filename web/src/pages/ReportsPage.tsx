@@ -40,21 +40,17 @@ function ValuationReport() {
                     <table className="w-full text-sm text-left">
                         <thead className="bg-[#F0E7D3] text-[#5C4033] uppercase text-xs tracking-wider border-b border-[#E4DAC6]">
                             <tr>
-                                <th className="px-6 py-3 font-semibold">SKU</th>
-                                <th className="px-6 py-3 font-semibold">Product Name</th>
+                                <th className="px-6 py-3 font-semibold">Warehouse Name</th>
                                 <th className="px-6 py-3 font-semibold text-right">Total Qty</th>
-                                <th className="px-6 py-3 font-semibold text-right">Avg Unit Cost</th>
                                 <th className="px-6 py-3 font-semibold text-right">Total Value</th>
                             </tr>
                         </thead>
                         <tbody className="divide-y divide-[#E4DAC6] bg-white">
-                            {rows.map((row: any) => (
-                                <tr key={row.product_id} className="hover:bg-[#FBF8F2] transition-colors">
-                                    <td className="px-6 py-4 font-medium text-[#3D2621]">{row.sku}</td>
-                                    <td className="px-6 py-4 text-[#5C4033]">{row.product_name}</td>
-                                    <td className="px-6 py-4 text-right text-[#8B6355]">{Number(row.total_quantity)}</td>
-                                    <td className="px-6 py-4 text-right text-[#5C4033]">{currencyFormat.format(Number(row.avg_unit_cost))}</td>
-                                    <td className="px-6 py-4 text-right font-semibold text-[#3D2621]">{currencyFormat.format(Number(row.total_value))}</td>
+                            {rows.map((row: any, i: number) => (
+                                <tr key={i} className="hover:bg-[#FBF8F2] transition-colors">
+                                    <td className="px-6 py-4 font-medium text-[#3D2621]">{row.warehouse_name || 'Unassigned'}</td>
+                                    <td className="px-6 py-4 text-right text-[#8B6355]">{Number(row.total_qty || 0)}</td>
+                                    <td className="px-6 py-4 text-right font-semibold text-[#3D2621]">{currencyFormat.format(Number(row.total_value || 0))}</td>
                                 </tr>
                             ))}
                         </tbody>
@@ -158,7 +154,7 @@ function DeadStockReport() {
                                 <th className="px-6 py-3 font-semibold">Product Name</th>
                                 <th className="px-6 py-3 font-semibold text-right">Current Qty</th>
                                 <th className="px-6 py-3 font-semibold">Last Movement</th>
-                                <th className="px-6 py-3 font-semibold">Days Inactive</th>
+                                <th className="px-6 py-3 font-semibold text-right">Stock Value</th>
                             </tr>
                         </thead>
                         <tbody className="divide-y divide-[#E4DAC6] bg-white">
@@ -169,11 +165,11 @@ function DeadStockReport() {
                                     <tr key={i} className="hover:bg-[#FBF8F2] transition-colors">
                                         <td className="px-6 py-4 font-medium text-[#3D2621]">{row.sku}</td>
                                         <td className="px-6 py-4 text-[#5C4033]">{row.product_name}</td>
-                                        <td className="px-6 py-4 text-right font-medium text-[#5C4033]">{Number(row.current_quantity)}</td>
+                                        <td className="px-6 py-4 text-right font-medium text-[#5C4033]">{Number(row.current_stock || 0)}</td>
                                         <td className="px-6 py-4 text-[#8B6355]">
                                             {row.last_movement_date ? format(new Date(row.last_movement_date), 'MMM d, yyyy') : 'Never'}
                                         </td>
-                                        <td className="px-6 py-4 text-[#8C2E27] font-semibold">{row.days_since_movement} days</td>
+                                        <td className="px-6 py-4 text-right text-[#8C2E27] font-semibold">{currencyFormat.format(Number(row.stock_value || 0))}</td>
                                     </tr>
                                 ))
                             )}
@@ -207,20 +203,18 @@ function TurnoverReport() {
                             <tr>
                                 <th className="px-6 py-3 font-semibold">SKU</th>
                                 <th className="px-6 py-3 font-semibold">Product Name</th>
-                                <th className="px-6 py-3 font-semibold text-right">Total Inbound (Last 30d)</th>
-                                <th className="px-6 py-3 font-semibold text-right">Total Outbound (Last 30d)</th>
+                                <th className="px-6 py-3 font-semibold text-right">Total Outbound</th>
                             </tr>
                         </thead>
                         <tbody className="divide-y divide-[#E4DAC6] bg-white">
                             {rows.length === 0 ? (
-                                <tr><td colSpan={4} className="py-12 text-center text-[#8B6355]">No turnover data available.</td></tr>
+                                <tr><td colSpan={3} className="py-12 text-center text-[#8B6355]">No turnover data available.</td></tr>
                             ) : (
                                 rows.map((row: any, i: number) => (
                                     <tr key={i} className="hover:bg-[#FBF8F2] transition-colors">
                                         <td className="px-6 py-4 font-medium text-[#3D2621]">{row.sku}</td>
                                         <td className="px-6 py-4 text-[#5C4033]">{row.product_name}</td>
-                                        <td className="px-6 py-4 text-right text-[#3F6B37] font-medium">+{Number(row.total_inbound)}</td>
-                                        <td className="px-6 py-4 text-right text-[#8C2E27] font-medium">-{Number(row.total_outbound)}</td>
+                                        <td className="px-6 py-4 text-right text-[#8C2E27] font-medium">{Number(row.total_outbound || 0)}</td>
                                     </tr>
                                 ))
                             )}
