@@ -158,7 +158,7 @@ export default function CreateTransferModal({ open, onOpenChange }: Props) {
                         </div>
 
                         <div className="space-y-2">
-                            {items.map((item, index) => (
+                            {items.map((item) => (
                                 <div key={item.id} className="flex items-start gap-2">
                                     <div className="flex-1">
                                         <select
