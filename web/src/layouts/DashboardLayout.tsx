@@ -2,7 +2,7 @@ import React from 'react';
 import { useUiStore } from '@/store/uiStore';
 import { useAuth } from '@/contexts/AuthContext';
 import { Link, Outlet, useLocation } from 'react-router-dom';
-import { Package, LayoutDashboard, ShoppingCart, ShoppingBag, BarChart3, LogOut, Menu, UserCircle } from 'lucide-react';
+import { Package, LayoutDashboard, ShoppingCart, ShoppingBag, Truck, BarChart3, LogOut, Menu, UserCircle } from 'lucide-react';
 
 export default function DashboardLayout() {
   const { isSidebarOpen, toggleSidebar } = useUiStore();
@@ -14,6 +14,7 @@ export default function DashboardLayout() {
     { name: 'Inventory', path: '/inventory', icon: Package },
     { name: 'Purchasing', path: '/purchasing', icon: ShoppingCart },
     { name: 'Sales Orders', path: '/sales', icon: ShoppingBag },
+    { name: 'Suppliers', path: '/suppliers', icon: Truck },
     { name: 'Reports', path: '/reports', icon: BarChart3 },
   ];
 
