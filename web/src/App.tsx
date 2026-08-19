@@ -1,4 +1,3 @@
-
 import { BrowserRouter, Routes, Route, Navigate, Outlet } from 'react-router-dom';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { AuthProvider, useAuth } from './contexts/AuthContext';
@@ -8,6 +7,7 @@ import DashboardLayout from './layouts/DashboardLayout';
 import LoginPage from './pages/LoginPage';
 import DashboardPage from './pages/DashboardPage';
 import InventoryPage from './pages/InventoryPage';
+import ProductsPage from './pages/ProductsPage';
 import PurchaseOrdersPage from './pages/PurchaseOrdersPage';
 import SalesOrdersPage from './pages/SalesOrdersPage';
 import SuppliersPage from './pages/SuppliersPage';
@@ -38,6 +38,7 @@ function AppRoutes() {
           <Route path="/" element={<Navigate to="/dashboard" replace />} />
           <Route path="/dashboard" element={<DashboardPage />} />
           <Route path="/inventory" element={<InventoryPage />} />
+          <Route path="/products" element={<ProductsPage />} />
           <Route path="/purchasing" element={<PurchaseOrdersPage />} />
           <Route path="/sales" element={<SalesOrdersPage />} />
           <Route path="/suppliers" element={<SuppliersPage />} />
