@@ -8,12 +8,13 @@ export class ReportsService {
   constructor(private prisma: PrismaService) {}
 
   async getDashboardMetrics() {
-    const [[productsResult], [inventoryResult], [lowStockResult], [poResult], [soResult]] = await Promise.all([
+    const [[productsResult], [inventoryResult], [lowStockResult], [poResult], [soResult], [customersResult]] = await Promise.all([
       this.prisma.$queryRaw<{ count: bigint }[]>`SELECT COUNT(*) as count FROM products WHERE is_active = true`,
       this.prisma.$queryRaw<{ total: number }[]>`SELECT SUM(quantity * unit_cost) as total FROM inventory`,
       this.prisma.$queryRaw<{ count: bigint }[]>`SELECT COUNT(*) as count FROM v_low_stock_alerts`,
       this.prisma.$queryRaw<{ count: bigint }[]>`SELECT COUNT(*) as count FROM v_open_purchase_orders`,
       this.prisma.$queryRaw<{ count: bigint }[]>`SELECT COUNT(*) as count FROM v_open_sales_orders`,
+      this.prisma.$queryRaw<{ count: bigint }[]>`SELECT COUNT(*) as count FROM customers WHERE is_active = true`,
     ]);
 
     return {
@@ -22,6 +23,7 @@ export class ReportsService {
       lowStockAlertsCount: Number(lowStockResult?.count || 0),
       openPurchaseOrdersCount: Number(poResult?.count || 0),
       openSalesOrdersCount: Number(soResult?.count || 0),
+      activeCustomersCount: Number(customersResult?.count || 0),
     };
   }
 

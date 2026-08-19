@@ -28,6 +28,7 @@ import {
     AlertTriangle,
     Truck,
     ShoppingCart,
+    Users,
 } from "lucide-react";
 
 interface DashboardMetrics {
@@ -36,6 +37,7 @@ interface DashboardMetrics {
     lowStockAlertsCount: number;
     openPurchaseOrdersCount: number;
     openSalesOrdersCount: number;
+    activeCustomersCount: number;
 }
 
 interface TurnoverRow {
@@ -199,7 +201,7 @@ export default function DashboardPage() {
                 </p>
             )}
 
-            <div className="grid grid-cols-2 gap-4 sm:grid-cols-3 lg:grid-cols-5">
+            <div className="grid grid-cols-2 gap-4 sm:grid-cols-3 lg:grid-cols-6">
                 <KpiCard
                     label="Total SKUs"
                     value={metricsLoading ? "…" : String(metrics?.totalProductsCount ?? 0)}
@@ -231,6 +233,11 @@ export default function DashboardPage() {
                     label="Open sales orders"
                     value={metricsLoading ? "…" : String(metrics?.openSalesOrdersCount ?? 0)}
                     icon={ShoppingCart}
+                />
+                <KpiCard
+                    label="Active customers"
+                    value={metricsLoading ? "…" : String(metrics?.activeCustomersCount ?? 0)}
+                    icon={Users}
                 />
             </div>
 

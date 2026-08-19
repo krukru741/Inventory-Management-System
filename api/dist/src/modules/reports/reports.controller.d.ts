@@ -9,6 +9,7 @@ export declare class ReportsController {
         lowStockAlertsCount: number;
         openPurchaseOrdersCount: number;
         openSalesOrdersCount: number;
+        activeCustomersCount: number;
     }>;
     getStockSummary(query: ReportQueryDto): Promise<unknown>;
     getLowStock(query: ReportQueryDto): Promise<unknown>;
