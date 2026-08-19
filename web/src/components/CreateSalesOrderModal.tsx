@@ -65,7 +65,7 @@ export default function CreateSalesOrderModal({ open, onOpenChange }: Props) {
         queryKey: ['customers'],
         queryFn: async () => {
             const { data } = await api.get('/customers');
-            return data.data ?? data;
+            return Array.isArray(data?.data) ? data.data : (Array.isArray(data) ? data : []);
         },
         enabled: open,
     });
@@ -74,7 +74,7 @@ export default function CreateSalesOrderModal({ open, onOpenChange }: Props) {
         queryKey: ['warehouses'],
         queryFn: async () => {
             const { data } = await api.get('/warehouses');
-            return data.data ?? data;
+            return Array.isArray(data?.data) ? data.data : (Array.isArray(data) ? data : []);
         },
         enabled: open,
     });
@@ -83,7 +83,7 @@ export default function CreateSalesOrderModal({ open, onOpenChange }: Props) {
         queryKey: ['products'],
         queryFn: async () => {
             const { data } = await api.get('/products');
-            return data.data ?? data;
+            return Array.isArray(data?.data) ? data.data : (Array.isArray(data) ? data : []);
         },
         enabled: open,
     });

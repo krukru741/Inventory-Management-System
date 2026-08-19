@@ -51,7 +51,7 @@ export default function CreatePurchaseOrderModal({ open, onOpenChange }: CreateP
         queryKey: ['suppliers'],
         queryFn: async () => {
             const { data } = await api.get('/suppliers');
-            return data.data ?? data;
+            return Array.isArray(data?.data) ? data.data : (Array.isArray(data) ? data : []);
         },
         enabled: open,
     });
@@ -60,7 +60,7 @@ export default function CreatePurchaseOrderModal({ open, onOpenChange }: CreateP
         queryKey: ['warehouses'],
         queryFn: async () => {
             const { data } = await api.get('/warehouses');
-            return data.data ?? data;
+            return Array.isArray(data?.data) ? data.data : (Array.isArray(data) ? data : []);
         },
         enabled: open,
     });
@@ -69,7 +69,7 @@ export default function CreatePurchaseOrderModal({ open, onOpenChange }: CreateP
         queryKey: ['products'],
         queryFn: async () => {
             const { data } = await api.get('/products');
-            return data.data ?? data;
+            return Array.isArray(data?.data) ? data.data : (Array.isArray(data) ? data : []);
         },
         enabled: open,
     });
